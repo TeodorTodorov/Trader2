@@ -1,0 +1,15 @@
+C:\Users\Teodor\source\repos\Trader\Trader\obj\Release\Trader.Form1.resources
+C:\Users\Teodor\source\repos\Trader\Trader\obj\Release\Trader.Properties.Resources.resources
+C:\Users\Teodor\source\repos\Trader\Trader\obj\Release\Trader.csproj.GenerateResource.cache
+C:\Users\Teodor\source\repos\Trader\Trader\obj\Release\Trader.csproj.CoreCompileInputs.cache
+C:\Users\Teodor\source\repos\Trader\Trader\bin\Release\Trader.exe.config
+C:\Users\Teodor\source\repos\Trader\Trader\bin\Release\Trader.exe
+C:\Users\Teodor\source\repos\Trader\Trader\bin\Release\Trader.pdb
+C:\Users\Teodor\source\repos\Trader\Trader\bin\Release\Newtonsoft.Json.dll
+C:\Users\Teodor\source\repos\Trader\Trader\bin\Release\websocket-sharp.dll
+C:\Users\Teodor\source\repos\Trader\Trader\bin\Release\Newtonsoft.Json.xml
+C:\Users\Teodor\source\repos\Trader\Trader\bin\Release\websocket-sharp.xml
+C:\Users\Teodor\source\repos\Trader\Trader\obj\Release\Trader.csproj.CopyComplete
+C:\Users\Teodor\source\repos\Trader\Trader\obj\Release\Trader.exe
+C:\Users\Teodor\source\repos\Trader\Trader\obj\Release\Trader.pdb
+C:\Users\Teodor\source\repos\Trader\Trader\obj\Release\Trader.csprojAssemblyReference.cache

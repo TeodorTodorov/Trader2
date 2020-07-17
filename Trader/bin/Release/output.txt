@@ -1,0 +1,85 @@
+[SOCKET Hearth opened]
+[MESSAGE]
+WebSocketSharp.WebSocket
+{"success":true,"request":{"op":"authKeyExpires","args":["H7Rk2l4XlJs3vTZYgeIBCkkX",1594759559,"7f2054d9ab64f4b9cbd0d66dbb171dd1f26183376c56c75a94dc8bf63659fc36"]}}
+WebSocketSharp.MessageEventArgs
+
+[MESSAGE]
+WebSocketSharp.WebSocket
+{"success":true,"subscribe":"order","request":{"op":"subscribe","args":["order"]}}
+WebSocketSharp.MessageEventArgs
+
+[MESSAGE]
+WebSocketSharp.WebSocket
+{"table":"order","action":"partial","keys":["orderID"],"types":{"orderID":"guid","clOrdID":"string","clOrdLinkID":"symbol","account":"long","symbol":"symbol","side":"symbol","simpleOrderQty":"float","orderQty":"long","price":"float","displayQty":"long","stopPx":"float","pegOffsetValue":"float","pegPriceType":"symbol","currency":"symbol","settlCurrency":"symbol","ordType":"symbol","timeInForce":"symbol","execInst":"symbol","contingencyType":"symbol","exDestination":"symbol","ordStatus":"symbol","triggered":"symbol","workingIndicator":"boolean","ordRejReason":"symbol","simpleLeavesQty":"float","leavesQty":"long","simpleCumQty":"float","cumQty":"long","avgPx":"float","multiLegReportingType":"symbol","text":"string","transactTime":"timestamp","timestamp":"timestamp"},"foreignKeys":{"symbol":"instrument","side":"side","ordStatus":"ordStatus"},"attributes":{"orderID":"grouped","account":"grouped","ordStatus":"grouped","workingIndicator":"grouped"},"filter":{"account":928149},"data":[]}
+WebSocketSharp.MessageEventArgs
+
+{
+  "table": "order",
+  "action": "partial",
+  "keys": [
+    "orderID"
+  ],
+  "types": {
+    "orderID": "guid",
+    "clOrdID": "string",
+    "clOrdLinkID": "symbol",
+    "account": "long",
+    "symbol": "symbol",
+    "side": "symbol",
+    "simpleOrderQty": "float",
+    "orderQty": "long",
+    "price": "float",
+    "displayQty": "long",
+    "stopPx": "float",
+    "pegOffsetValue": "float",
+    "pegPriceType": "symbol",
+    "currency": "symbol",
+    "settlCurrency": "symbol",
+    "ordType": "symbol",
+    "timeInForce": "symbol",
+    "execInst": "symbol",
+    "contingencyType": "symbol",
+    "exDestination": "symbol",
+    "ordStatus": "symbol",
+    "triggered": "symbol",
+    "workingIndicator": "boolean",
+    "ordRejReason": "symbol",
+    "simpleLeavesQty": "float",
+    "leavesQty": "long",
+    "simpleCumQty": "float",
+    "cumQty": "long",
+    "avgPx": "float",
+    "multiLegReportingType": "symbol",
+    "text": "string",
+    "transactTime": "timestamp",
+    "timestamp": "timestamp"
+  },
+  "foreignKeys": {
+    "symbol": "instrument",
+    "side": "side",
+    "ordStatus": "ordStatus"
+  },
+  "attributes": {
+    "orderID": "grouped",
+    "account": "grouped",
+    "ordStatus": "grouped",
+    "workingIndicator": "grouped"
+  },
+  "filter": {
+    "account": 928149
+  },
+  "data": []
+}
+no partial data
+[Socket ping]
+[Socket pong]
+[Socket Info pong]
+[Socket ping]
+[Socket Info pong]
+[Socket pong]
+0
+0
+[Socket ping]
+[Socket pong]
+[Socket Info pong]
