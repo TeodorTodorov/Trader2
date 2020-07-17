@@ -1,3 +1,4 @@
+0. Variable with hidden purpose - globalObjects line 23 - shift to enum, possible to split the 24 hours to more than 2 chuncks
 1. Implement the final bot strategy
 2. Test
 3. Handle Bitmex.com overloading hang up(sending rest api Orders)

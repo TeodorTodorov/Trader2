@@ -20,6 +20,7 @@ namespace Trader
         //api
         volatile public static BitmexApiConnector bitmex;
         // 1 - AM-12hour-candle-trading, 2- PM-12hour-candle trading
+        // REMOVE hidden purpose variable
         volatile  public static int tradeTime = 0;
         // bot
         volatile public static bool execByLastPrice = false;
