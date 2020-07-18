@@ -19,10 +19,7 @@ namespace
         private readonly string domain;
         private readonly string apiKey;
         private readonly string apiSecret;
-        
-
-
-
+       
         //private static BitmexApiConnector instance = null;
 
         //private BitmexApiConnector()
@@ -58,7 +55,6 @@ namespace
             return DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 3600; // set expires one hour in the future
         }
 
-       
         private string BuildQueryData(Dictionary<string, string> param)
         {
             if (param == null)
@@ -77,7 +73,6 @@ namespace
             string signatureString = ByteArrayToString(signatureBytes);
             return signatureString;
         }
-
         private string BuildJSON(Dictionary<string, string> param)
         {
             if (param == null)
@@ -89,7 +84,6 @@ namespace
 
             return "{" + string.Join(",", entries) + "}";
         }
-
         public static string ByteArrayToString(byte[] ba)
         {
             StringBuilder hex = new StringBuilder(ba.Length * 2);
@@ -165,7 +159,6 @@ namespace
             return (expires);
         }
 
-
         // CUSTOM Calls
         public List<OrderBook> GetOrderBook(string symbol, int depth)
         {
@@ -210,6 +203,7 @@ namespace
             Console.WriteLine(res);
             return res;
         }
+
         public string DeleteOrder(string clorId)
         {
             var param = new Dictionary<string, string>
@@ -221,6 +215,7 @@ namespace
             Console.WriteLine(res);
             return res;
         }
+
         public string CancelAllOpenOrders(string symbol, string Note = "")
         {
             var param = new Dictionary<string, string>
@@ -238,6 +233,7 @@ namespace
             string res = Query("GET", "/instrument/active");
             return JsonConvert.DeserializeObject<List<Instrument>>(res);
         }
+
         public List<Instrument> GetInstrument(string symbol)
         {
             var param = new Dictionary<string, string>
@@ -297,7 +293,6 @@ namespace
             return JsonConvert.DeserializeObject<List<Candle>>(res).OrderByDescending(a => a.TimeStamp).ToList();
         }
 
-
         public List<Position> GetOpenPositions(string symbol)
         {
             var param = new Dictionary<string, string>();
@@ -306,7 +301,6 @@ namespace
 
             return JsonConvert.DeserializeObject<List<Position>>(res).Where(a => a.Symbol == symbol && a.IsOpen == true).OrderByDescending(a => a.TimeStamp).ToList();
         }
-
 
         public List<Order> GetOpenOrders(string symbol)
         {
@@ -342,7 +336,6 @@ namespace
             return Query("PUT", "/order", param, true, true);
         }
 
-
         public string MarketStop(string Symbol, string Side, double stopPrice, int Quantity, bool ReduceOnly, string clorID)
         {
             string text = "BMBStopMarket";
@@ -373,6 +366,7 @@ namespace
             Console.WriteLine("[SERVER RESPONSE]" + res);
             return res;
         }
+
         public string TakeProfitMarket(string Symbol, string Side, double stopPrice, int Quantity, bool ReduceOnly, string clorID)
         {
             string timeframe = "";

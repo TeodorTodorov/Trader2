@@ -35,8 +35,6 @@ namespace Trader
             {
                 roundedNumber = integralPart + 1.0;
             }
-
-
             else if (decimalPart == 0)
             {
                 roundedNumber = absoluteValue;
@@ -48,9 +46,10 @@ namespace Trader
 
             return sign * roundedNumber;
         }
+
         public static double RoundEtherium(double d)
         {
-            d *=  10;
+            d *= 10;
             var absoluteValue = Math.Abs(d);
             var integralPart = (long)absoluteValue;
             var decimalPart = absoluteValue - integralPart;
@@ -73,7 +72,6 @@ namespace Trader
             {
                 roundedNumber = integralPart + 1.0;
             }
-
             else if (decimalPart == 0)
             {
                 roundedNumber = absoluteValue;
@@ -82,9 +80,7 @@ namespace Trader
             {
                 roundedNumber = integralPart + 0.5;
             }
-
             return sign * (roundedNumber / 10);
         }
     }
-
 }
