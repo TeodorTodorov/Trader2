@@ -1,6 +1,8 @@
 ﻿
 // THIS CODE IS LEGACY - result of bad programmer and customer constantly changing and adding new features and requirments, the programmer tried to patch it up
 // leaved only for testing, after some iterations the customer validate strong requirments and featuresq different from the code here, to be implimented againsw
+// not meeting clean coderequirments, leaved for demo/test purposes
+// TODO : replace code
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -290,7 +292,7 @@ namespace Trader
                     {
 
                         // if we are morning and were trading at last afternoon
-                        if (continueWithDown == false && continueWithUP == false && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.ActiveInstrument.Symbol).Count == 0)
+                        if (continueWithDown == false && continueWithUP == false && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.activeInstrument.Symbol).Count == 0)
                         {
 
                             // if we take profit from up and down we null the bot and start trading again
@@ -302,7 +304,7 @@ namespace Trader
                         bool deleteUp = false;
                         foreach (var item in postedStopMarketOrderIDDown)
                         {
-                            if (String.Compare(GlobalObjects.lastOrders[item].OrdStatus, "filled") == 0 && continueWithDown && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.ActiveInstrument.Symbol).Count != 0)
+                            if (String.Compare(GlobalObjects.lastOrders[item].OrdStatus, "filled") == 0 && continueWithDown && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.activeInstrument.Symbol).Count != 0)
                             {
 
                                 deleteDown = true;
@@ -311,7 +313,7 @@ namespace Trader
                         }
                         foreach (var item in postedStopMarketOrderIDUP)
                         {
-                            if (String.Compare(GlobalObjects.lastOrders[item].OrdStatus, "filled") == 0 && continueWithUP && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.ActiveInstrument.Symbol).Count != 0)
+                            if (String.Compare(GlobalObjects.lastOrders[item].OrdStatus, "filled") == 0 && continueWithUP && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.activeInstrument.Symbol).Count != 0)
                             {
                                 deleteUp = true;
 
@@ -353,7 +355,7 @@ namespace Trader
                     if (areWeAM == false && tradeTime == 1)
                     {
                         //if we are not morning and we were trading at morning
-                        if (continueWithDown == false && continueWithUP == false && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.ActiveInstrument.Symbol).Count == 0)
+                        if (continueWithDown == false && continueWithUP == false && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.activeInstrument.Symbol).Count == 0)
                         {
                             // if we have taken profit from up and down we null the bot
                             NULLBOT();
@@ -364,7 +366,7 @@ namespace Trader
                         bool deleteUp2 = false;
                         foreach (var item in postedStopMarketOrderIDDown)
                         {
-                            if (String.Compare(GlobalObjects.lastOrders[item].OrdStatus, "filled") == 0 && continueWithDown && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.ActiveInstrument.Symbol).Count != 0)
+                            if (String.Compare(GlobalObjects.lastOrders[item].OrdStatus, "filled") == 0 && continueWithDown && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.activeInstrument.Symbol).Count != 0)
                             {
                                 deleteUp2 = true;
 
@@ -372,7 +374,7 @@ namespace Trader
                         }
                         foreach (var item in postedStopMarketOrderIDUP)
                         {
-                            if (String.Compare(GlobalObjects.lastOrders[item].OrdStatus, "filled") == 0 && continueWithUP && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.ActiveInstrument.Symbol).Count != 0)
+                            if (String.Compare(GlobalObjects.lastOrders[item].OrdStatus, "filled") == 0 && continueWithUP && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.activeInstrument.Symbol).Count != 0)
                             {
                                 deleteDown2 = true;
 
@@ -412,9 +414,9 @@ namespace Trader
                     // if we do not have open position from the last candle we null the bot
                     if (areWeAM && tradeTime == 2)
                     {
-                        if (GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.ActiveInstrument.Symbol).Count == 0)
+                        if (GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.activeInstrument.Symbol).Count == 0)
                         {
-                            GlobalObjects.bitmex.CancelAllOpenOrders(GlobalObjects.ActiveInstrument.Symbol);
+                            GlobalObjects.bitmex.CancelAllOpenOrders(GlobalObjects.activeInstrument.Symbol);
                             NULLBOT();
 
                             Thread.Sleep(50);
@@ -422,9 +424,9 @@ namespace Trader
                     }
                     if (areWeAM == false && tradeTime == 1)
                     {
-                        if (GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.ActiveInstrument.Symbol).Count == 0)
+                        if (GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.activeInstrument.Symbol).Count == 0)
                         {
-                            GlobalObjects.bitmex.CancelAllOpenOrders(GlobalObjects.ActiveInstrument.Symbol);
+                            GlobalObjects.bitmex.CancelAllOpenOrders(GlobalObjects.activeInstrument.Symbol);
                             NULLBOT();
 
                             Thread.Sleep(50);
@@ -545,14 +547,14 @@ namespace Trader
              
              
              */
-            GlobalObjects.Candles.Clear();
+            GlobalObjects.candles.Clear();
             GlobalObjects.listof12Candles.Clear();
 
 
             GlobalObjects.one12HoursCandle.Clear();
 
             GlobalObjects.lastOrders.Clear();
-            GlobalObjects.OpenPositions.Clear();
+            GlobalObjects.openPositions.Clear();
 
             // up
             continueWithUP = true;

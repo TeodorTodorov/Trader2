@@ -1546,7 +1546,6 @@
             this.btnPing.TabIndex = 13;
             this.btnPing.Text = "ping";
             this.btnPing.UseVisualStyleBackColor = true;
-            this.btnPing.Click += new System.EventHandler(this.BtnPing_Click);
             // 
             // txtSocket
             // 

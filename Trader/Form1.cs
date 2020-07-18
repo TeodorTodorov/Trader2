@@ -18,35 +18,19 @@ namespace Trader
     {
         readonly Bot bot;
         public static List<Candle> one12HoursCandle = new List<Candle>();
-        readonly List<Order> testList = new List<Order>();
 
         public Form1()
         {
-            Order or1 = new Order
-            {
-                OrderQty = 10,
-                OrderId = "432"
-            };
-            testList.Add(or1);
-
-
             InitializeComponent();
             InitializeDropdownsAndSettings();
             InitializeAPI();
             InitializeSymbolInfromation();
             GlobalObjects.candleRetriever = new CandleRetriever();
-            var source = new BindingSource(testList, null);
-
-
-
             System.Threading.Thread thread1 = new Thread(BSocket.HearthBeat);
             thread1.Start();
-
             //Action hearthbeat = () => BSocket.Hearthbeat();
             // Task task = Task.Run(hearthbeat);
-
             bot = new Bot();
-
         }
 
         private void InitializeDropdownsAndSettings()
@@ -73,13 +57,8 @@ namespace Trader
             txtSecret.Text = Properties.Settings.Default.secret;
             txtDomain.Text = Properties.Settings.Default.domain;
             txtSocket.Text = Properties.Settings.Default.socketDomain;
-
-
-
-
-
         }
-        
+
         private void SaveDropDownAndSettings()
         {
             Properties.Settings.Default.Step1StopMarketBUYPRICE = nudStep1StopMarketBUYPRICE.Value;
@@ -109,6 +88,7 @@ namespace Trader
         {
             SaveDropDownAndSettings();
         }
+
         private void InitializeAPI()
         {
             GlobalObjects.bitmex = new BitmexApiConnector(Properties.Settings.Default.key, Properties.Settings.Default.secret, Properties.Settings.Default.domain);
@@ -118,8 +98,6 @@ namespace Trader
             // InitializeSymbolInformation();
             InitializeSymbolInfromation();
         }
-
-
 
         private void BtnStartBot_Click(object sender, EventArgs e)
         {
@@ -132,12 +110,11 @@ namespace Trader
                 btnStopBot.BackColor = Color.Green;
                 GlobalObjects.isRunning = true;
                 bot.Excecute();
-
             }
         }
+
         private void BtnStopBot_Click(object sender, EventArgs e)
         {
-
             if (GlobalObjects.isRunning)
             {
                 GlobalObjects.isRunning = false; // to start and stop the bot
@@ -152,34 +129,26 @@ namespace Trader
                 btnStopBot.BackColor = Color.Red;
                 btnStartBot.Text = "Start Bot";
                 btnStartBot.BackColor = Color.Green;
-
             }
-
-
         }
-
 
         private void InitializeSymbolInfromation()
         {
-            GlobalObjects.ActiveInstruments = GlobalObjects.bitmex.GetActiveInstruments().OrderByDescending(a => a.Volume24H).ToList();
-            ddlSymbol.DataSource = GlobalObjects.ActiveInstruments;
+            GlobalObjects.activeInstruments = GlobalObjects.bitmex.GetActiveInstruments().OrderByDescending(a => a.Volume24H).ToList();
+            ddlSymbol.DataSource = GlobalObjects.activeInstrument;
             ddlSymbol.DisplayMember = "Symbol";
             ddlSymbol.SelectedIndex = 0;
-            GlobalObjects.ActiveInstrument = GlobalObjects.ActiveInstruments[0];
+            GlobalObjects.activeInstrument = GlobalObjects.activeInstruments[0];
         }
 
         private void BtnSave_Click(object sender, EventArgs e)
         {
             SaveDropDownAndSettings();
         }
+
         private void DdlSymbol_SelectedIndexChanged(object sender, EventArgs e)
         {
-            GlobalObjects.ActiveInstrument = GlobalObjects.bitmex.GetInstrument(((Instrument)ddlSymbol.SelectedItem).Symbol)[0];
-        }
-
-        private void BtnPing_Click(object sender, EventArgs e)
-        {
-
+            GlobalObjects.activeInstrument = GlobalObjects.bitmex.GetInstrument(((Instrument)ddlSymbol.SelectedItem).Symbol)[0];
         }
 
         private void Refresh_Click(object sender, EventArgs e)
@@ -190,11 +159,8 @@ namespace Trader
             Console.WriteLine(GlobalObjects.lastOrders.Count);
             foreach (var item in orders)
             {
-
                 Console.WriteLine(item.ClOrdID + " " + item.StopPx);
             }
-
-
         }
 
         private void Refrest12CandlesGrid_Click(object sender, EventArgs e)

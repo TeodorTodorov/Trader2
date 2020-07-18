@@ -5,3 +5,5 @@
 4. Implement Thread safe Observer pattern for socket updates and notify bot HearthTick method only when update is present  https://www.techyourchance.com/thread-safe-observer-design-pattern-in-java/
 5. Use ThreadSafe Dictionary to stare Data 
 6. Implement better UI structure
+
+comments prefixed with TODO in the code
