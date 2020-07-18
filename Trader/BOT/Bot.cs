@@ -1,6 +1,6 @@
 ﻿
-// THIS CODE IS LEGACY - result of bad programmer and customer constantly changing and adding new features and requirments, the programmer tried to patch it up
-// leaved only for testing, after some iterations the customer validate strong requirments and featuresq different from the code here, to be implimented againsw
+// THIS CODE IS LEGACY - result of bad programming and customer constantly changing and adding new features and requirments, the programmer tried to patch it up
+// leaved only for testing, after some iterations the customer validate strong requirments and features different from the code here, to be implimented again
 // not meeting clean coderequirments, leaved for demo/test purposes
 // TODO : replace code
 using System;
@@ -300,25 +300,27 @@ namespace Trader
 
                             Thread.Sleep(50);
                         }
+
                         bool deleteDown = false;
                         bool deleteUp = false;
                         foreach (var item in postedStopMarketOrderIDDown)
                         {
                             if (String.Compare(GlobalObjects.lastOrders[item].OrdStatus, "filled") == 0 && continueWithDown && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.activeInstrument.Symbol).Count != 0)
                             {
-
                                 deleteDown = true;
-
                             }
+
                         }
+
                         foreach (var item in postedStopMarketOrderIDUP)
                         {
                             if (String.Compare(GlobalObjects.lastOrders[item].OrdStatus, "filled") == 0 && continueWithUP && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.activeInstrument.Symbol).Count != 0)
                             {
                                 deleteUp = true;
-
                             }
+
                         }
+
                         if (deleteUp && continueWithUP)
                         {
                             foreach (var item in postedStopMarketOrderIDUP.ToList())
@@ -326,12 +328,12 @@ namespace Trader
                                 GlobalObjects.bitmex.DeleteOrder(item);
                                 postedStopMarketOrderIDUP.Remove(item);
                             }
+
                             foreach (var item in postedTakeProfitOrdersIDUP.ToList())
                             {
                                 GlobalObjects.bitmex.DeleteOrder(item);
                                 postedTakeProfitOrdersIDUP.Remove(item);
                             }
-
 
                         }
                         if (deleteDown && continueWithDown)

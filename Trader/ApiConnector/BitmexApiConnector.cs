@@ -19,7 +19,7 @@ namespace
         private readonly string domain;
         private readonly string apiKey;
         private readonly string apiSecret;
-       
+
         //private static BitmexApiConnector instance = null;
 
         //private BitmexApiConnector()
@@ -34,6 +34,7 @@ namespace
         //        {
         //            instance = new BitmexApiConnector();
         //        }
+
         //        return instance;
         //    }
         //}
@@ -42,13 +43,10 @@ namespace
         {
             this.apiKey = bitmexKey;
             this.apiSecret = bitmexSecret;
-          
+
             this.domain = domain;
             //  InitializeFileLoggers();
         }
-
-
-
 
         private long GetExpires()
         {
@@ -58,25 +56,35 @@ namespace
         private string BuildQueryData(Dictionary<string, string> param)
         {
             if (param == null)
+            {
                 return "";
+            }
 
             StringBuilder b = new StringBuilder();
             foreach (var item in param)
                 b.Append(string.Format("&{0}={1}", item.Key, WebUtility.UrlEncode(item.Value)));
 
             try { return b.ToString().Substring(1); }
-            catch (Exception) { return ""; }
+            catch (Exception)
+            {
+                return "";
+            }
+
         }
+
         public string GetWebSocketSignatureString(string APISecret, string APIExpires)
         {
             byte[] signatureBytes = Encryptor.Hmacsha256(Encoding.UTF8.GetBytes(APISecret), Encoding.UTF8.GetBytes("GET/realtime" + APIExpires));
             string signatureString = ByteArrayToString(signatureBytes);
             return signatureString;
         }
+
         private string BuildJSON(Dictionary<string, string> param)
         {
             if (param == null)
+            {
                 return "";
+            }
 
             var entries = new List<string>();
             foreach (var item in param)
@@ -84,13 +92,18 @@ namespace
 
             return "{" + string.Join(",", entries) + "}";
         }
+
         public static string ByteArrayToString(byte[] ba)
         {
             StringBuilder hex = new StringBuilder(ba.Length * 2);
             foreach (byte b in ba)
+            {
                 hex.AppendFormat("{0:x2}", b);
+            }
+
             return hex.ToString();
         }
+
         private string Query(string method, string function, Dictionary<string, string> param = null, bool auth = false, bool json = false)
         {
             string paramData = json ? BuildJSON(param) : BuildQueryData(param);
@@ -135,8 +148,9 @@ namespace
             {
                 using (HttpWebResponse response = (HttpWebResponse)wex.Response)
                 {
-                    if (response == null)
-                        throw;
+                    if (response == null) { 
+                    throw;
+                }
 
                     using (Stream str = response.GetResponseStream())
                     {
@@ -258,7 +272,7 @@ namespace
 
 
         //}
-
+        //}
         public List<Candle> GetCandleHistory(string symbol, int count, string size)
         {
             var param = new Dictionary<string, string>
@@ -288,6 +302,7 @@ namespace
                     throw new Exception("max retry retry attempts of GetCandleHistory reaced" + res);
 
                 }
+
             }
 
             return JsonConvert.DeserializeObject<List<Candle>>(res).OrderByDescending(a => a.TimeStamp).ToList();
@@ -297,8 +312,6 @@ namespace
         {
             var param = new Dictionary<string, string>();
             string res = Query("GET", "/position", param, true);
-
-
             return JsonConvert.DeserializeObject<List<Position>>(res).Where(a => a.Symbol == symbol && a.IsOpen == true).OrderByDescending(a => a.TimeStamp).ToList();
         }
 

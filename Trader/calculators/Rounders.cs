@@ -80,6 +80,7 @@ namespace Trader
             {
                 roundedNumber = integralPart + 0.5;
             }
+
             return sign * (roundedNumber / 10);
         }
     }
