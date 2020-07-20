@@ -9,8 +9,8 @@ namespace Trader
         /// <summary>
         /// Rounds price for BTCUSD
         /// </summary>
-        /// <param name="d"></param>
-        /// <returns></returns>
+        /// <param name="d"> value to round</param>
+        /// <returns> double rounded BTC value</returns>
         public static double RoundBTC(double d)
         {
             var absoluteValue = Math.Abs(d);
@@ -46,7 +46,11 @@ namespace Trader
 
             return sign * roundedNumber;
         }
-
+        /// <summary>
+        /// Rounds Etherium value
+        /// </summary>
+        /// <param name="d"></param>
+        /// <returns>double</returns>
         public static double RoundEtherium(double d)
         {
             d *= 10;

@@ -19,6 +19,9 @@ namespace
         private string domain;
         private string apiKey;
         private string apiSecret;
+        const int MAXRETRIES = 30;
+        // thread sleep in milliseconds at least 500 !
+        const int WAITMS = 800;
 
         private static BitmexApiConnector instance = null;
 
@@ -298,7 +301,7 @@ namespace
                 ["partial"] = false.ToString(),
                 ["binSize"] = size
             };
-            int MaxRetries = 10;
+           
             string res = Query("GET", "/trade/bucketed", param);
             int RetryAttemptCount = 0;
 
@@ -306,11 +309,11 @@ namespace
             while (res.Contains("error"))
             {
                 // errors.Add(res);
-                Thread.Sleep(100); // fort app to wait 500ms
+                Thread.Sleep(800); // wait at least 500ms
                 res = Query("GET", "/trade/bucketed", param);
 
                 RetryAttemptCount++;
-                if (RetryAttemptCount == MaxRetries)
+                if (RetryAttemptCount == MAXRETRIES)
                 {
                     //  errors.Add("Max retry attempts of " + MaxRetries.ToString() + "reached.");
 
@@ -392,6 +395,24 @@ namespace
             string res = Query("POST", "/order", param, true);
 
             Console.WriteLine("[SERVER RESPONSE]" + res);
+            int RetryAttemptCount = 0;
+            while (res.Contains("error"))
+            {
+                // errors.Add(res);
+                Thread.Sleep(WAITMS); // wait at least 500ms
+                res = Query("POST", "/order", param, true);
+                Console.WriteLine("[SERVER RESPONSE]" + res);
+
+                RetryAttemptCount++;
+                if (RetryAttemptCount == MAXRETRIES)
+                {
+                    //  errors.Add("Max retry attempts of " + MaxRetries.ToString() + "reached.");
+
+                    throw new Exception("max retry retry attempts of MarketStop reaced" + res);
+
+                }
+
+            }
             return res;
         }
 
@@ -420,6 +441,25 @@ namespace
             Console.WriteLine("[ORDER]marketstop: " + "side: " + Side + "orderQty: " + Quantity.ToString() + "clOrdID: " + clorID + "stopPx: " + stopPrice.ToString());
             string res = Query("POST", "/order", param, true);
             Console.WriteLine("[SERVER RESPONSE]" + res);
+
+            int RetryAttemptCount = 0;
+            while (res.Contains("error"))
+            {
+                // errors.Add(res);
+                Thread.Sleep(WAITMS); // wait at least 500ms
+                res = Query("POST", "/order", param, true);
+                Console.WriteLine("[SERVER RESPONSE]" + res);
+
+                RetryAttemptCount++;
+                if (RetryAttemptCount == MAXRETRIES)
+                {
+                    //  errors.Add("Max retry attempts of " + MaxRetries.ToString() + "reached.");
+
+                    throw new Exception("max retry retry attempts TakeProfitMarket" + res);
+
+                }
+
+            }
             return res;
         }
 

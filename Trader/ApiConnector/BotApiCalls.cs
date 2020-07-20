@@ -11,7 +11,7 @@ namespace Trader
 {
     class BotApiCalls
     {
-        const string SALT = "jyjs";
+        const string SALT = "jvs";
         BitmexApiConnector bitmex;
         CandleRetriever candleRetriever;
         ActiveInstrument activeInstrument;
@@ -50,7 +50,7 @@ namespace Trader
         public string Step1UP()
         {
             double price;
-            candleRetriever.Build12HourCandleAndDisplay();
+            candleRetriever.Build12HourCandle();
             price = PriceCalculator.GetPriceOrder1(candleRetriever.Candle12Hour);
             int qty = Properties.Settings.Default.BOTstartQty;
             price = Rounders.RoundBTC(price);
@@ -63,7 +63,7 @@ namespace Trader
         {
             // order7
             double price = 0;
-            candleRetriever.Build12HourCandleAndDisplay();
+            candleRetriever.Build12HourCandle();
             price = PriceCalculator.GetPriceOrder7(candleRetriever.Candle12Hour);
             price = price = Rounders.RoundBTC(price);
             int qty = Properties.Settings.Default.BOTstartQty;

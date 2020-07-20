@@ -14,9 +14,9 @@ namespace Trader
         BitmexApiConnector bitmex;
         ActiveInstrument activeInstruments;
         volatile public static int tradeTime = 0;
-        volatile public static List<Candle> listof12Candles = new List<Candle>();
-        volatile public static List<Candle> one12HoursCandle = new List<Candle>();
-        volatile public static List<Candle> Candles = new List<Candle>();
+        volatile static List<Candle> listof12Candles = new List<Candle>();
+        volatile static List<Candle> one12HoursCandle = new List<Candle>();
+        volatile static List<Candle> Candles = new List<Candle>();
 
         private CandleRetriever()
         {
@@ -36,7 +36,7 @@ namespace Trader
                 return instance;
             }
         }
-        public void Build12HourCandleAndDisplay()
+        public void Build12HourCandle()
         {
             one12HoursCandle.Clear();
             Candle c = new Candle();
@@ -75,6 +75,12 @@ namespace Trader
         public Candle Candle12Hour
         {
             get { return one12HoursCandle[0]; }
+        }
+        public List<Candle> getBuildingCandles()
+        {
+            List<Candle> result = new List<Candle>(listof12Candles);
+            return result;
+
         }
     }
 }

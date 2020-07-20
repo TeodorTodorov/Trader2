@@ -47,17 +47,17 @@ namespace Trader
             isDownTrading = true;
             TickOnce();
         }
-        public void PauseStop()
-        {
-            isUpTrading = false;
-            isDownTrading = false;
-        }
-        public void PauseResume()
-        {
-            isUpTrading = true;
-            isDownTrading = true;
-            TickOnce();
-        }
+        //public void PauseStop()
+        //{
+        //    isUpTrading = false;
+        //    isDownTrading = false;
+        //}
+        //public void PauseResume()
+        //{
+        //    isUpTrading = true;
+        //    isDownTrading = true;
+        //    TickOnce();
+        //}
         public async void  TickOnce()
         {
             await semaphoreSlim.WaitAsync();

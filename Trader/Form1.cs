@@ -23,6 +23,7 @@ namespace Trader
         ActiveInstrument activeInstrument;
         BitmexApiConnector bitmex;
         List<Instrument> listInstruments;
+        CandleRetriever candleRetriever;
 
 
 
@@ -39,11 +40,10 @@ namespace Trader
             System.Threading.Thread thread1 = new Thread(socket.HearthBeat);
             OrdersOnlineSubscriber sb = new OrdersOnlineSubscriber(SocketGetOrders);
             SocketGetOrders.DataSource = orderDTO.orderList;
+            candleRetriever = CandleRetriever.Instance;
             bot = new Bot(orderDTO);
             orderSubject.Subscribe(sb);
             orderSubject.Subscribe(bot);
-
-
             thread1.Start();
             //Action hearthbeat = () => BSocket.Hearthbeat();
             // Task task = Task.Run(hearthbeat);
@@ -52,7 +52,6 @@ namespace Trader
 
         private void InitializeDropdownsAndSettings()
         {
-
             nudOrder1Price.Value = Properties.Settings.Default.order1Price;
             nudOrder7Price.Value = Properties.Settings.Default.order7Price;
             nudOrder2Percent.Value = Properties.Settings.Default.order2Percent;
@@ -70,15 +69,12 @@ namespace Trader
             nudOrder4Qty.Value = Properties.Settings.Default.order4Quantity;
             nudOrder5Qty.Value = Properties.Settings.Default.order5Quantity;
             nudOrder6Qty.Value = Properties.Settings.Default.order6Quantity;
-      
             nudOrder8Qty.Value = Properties.Settings.Default.order8Quantity;
             nudOrder9Qty.Value = Properties.Settings.Default.order9Quantity;
             nudOrder10Qty.Value = Properties.Settings.Default.order10Quantity;
             nudOrder11Qty.Value = Properties.Settings.Default.order11Quantity;
             nudOrder12Qty.Value = Properties.Settings.Default.order12Quantity;
             
-
-
             nudSum.Value = Properties.Settings.Default.BOTstartQty;
             txtKey.Text = Properties.Settings.Default.key;
             txtSecret.Text = Properties.Settings.Default.secret;
@@ -88,7 +84,6 @@ namespace Trader
 
         private void SaveDropDownAndSettings()
         {
-
             Properties.Settings.Default.order1Price = nudOrder1Price.Value;
             Properties.Settings.Default.order7Price = nudOrder7Price.Value;
             Properties.Settings.Default.order2Percent = nudOrder2Percent.Value;
@@ -106,13 +101,11 @@ namespace Trader
             Properties.Settings.Default.order4Quantity = Convert.ToInt32(nudOrder4Qty.Value);
             Properties.Settings.Default.order5Quantity = Convert.ToInt32(nudOrder5Qty.Value);
             Properties.Settings.Default.order6Quantity = Convert.ToInt32(nudOrder6Qty.Value);
-
             Properties.Settings.Default.order8Quantity = Convert.ToInt32(nudOrder8Qty.Value);
             Properties.Settings.Default.order9Quantity = Convert.ToInt32(nudOrder9Qty.Value);
             Properties.Settings.Default.order10Quantity = Convert.ToInt32(nudOrder10Qty.Value) ;
             Properties.Settings.Default.order11Quantity = Convert.ToInt32(nudOrder11Qty.Value);
             Properties.Settings.Default.order12Quantity = Convert.ToInt32(nudOrder12Qty.Value);
-
 
             Properties.Settings.Default.BOTstartQty = Convert.ToInt32(nudSum.Value);
             Properties.Settings.Default.key = txtKey.Text;
@@ -134,8 +127,6 @@ namespace Trader
             bitmex.ApiSecret = Properties.Settings.Default.secret;
             bitmex.Domain = Properties.Settings.Default.domain;
             activeInstrument = ActiveInstrument.Instance;
-
-
             // We must do this in case symbols are different on test and real net
             // GetAPIValidity(); // Validate API keys by checking and displaying account balance.
             // InitializeSymbolInformation();
@@ -151,7 +142,6 @@ namespace Trader
             ddlSymbol.DisplayMember = "Symbol";
             ddlSymbol.SelectedIndex = 0;
             activeInstrument.ChangeActiveInstrument(((Instrument)ddlSymbol.SelectedItem).Symbol);
-        
         }
 
         private void BtnSave_Click(object sender, EventArgs e)
@@ -161,20 +151,21 @@ namespace Trader
 
         private void DdlSymbol_SelectedIndexChanged(object sender, EventArgs e)
         {
-
             activeInstrument.ChangeActiveInstrument(((Instrument)ddlSymbol.SelectedItem).Symbol);
         }
 
         private void Refresh_Click(object sender, EventArgs e)
         {
             SocketGetOrders.DataSource = orderDTO.orderList;
-
         }
 
         private void Refrest12CandlesGrid_Click(object sender, EventArgs e)
         {
-            dataGridCandles.DataSource = CandleRetriever.listof12Candles.ToList<Candle>();
-            dataGrind12Hour.DataSource = CandleRetriever.one12HoursCandle.ToList<Candle>();
+            dataGridCandles.DataSource = candleRetriever.getBuildingCandles();
+            List<Candle> holder = new List<Candle>();
+            Candle candle12Hour= candleRetriever.Candle12Hour;
+            holder.Add(candle12Hour);
+            dataGrind12Hour.DataSource = holder;
         }
 
         private void BtnDeleteByClorID_Click(object sender, EventArgs e)
