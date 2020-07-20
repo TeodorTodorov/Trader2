@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,199 +9,162 @@ using System.Threading.Tasks;
 
 namespace Trader
 {
-    static class BotApiCalls
+    class BotApiCalls
     {
-        const string SALT = "jyj";
+        const string SALT = "jyjs";
+        BitmexApiConnector bitmex;
+        CandleRetriever candleRetriever;
+        ActiveInstrument activeInstrument;
+        private bool isExecByLastPrice = false;
 
-        static string GetId()
+
+        private static BotApiCalls instance = null;
+
+        private BotApiCalls()
+        {
+            bitmex = BitmexApiConnector.Instance;
+            candleRetriever = CandleRetriever.Instance;
+            activeInstrument = ActiveInstrument.Instance;
+        }
+
+        public static BotApiCalls Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new BotApiCalls();
+                }
+
+                return instance;
+            }
+        }
+
+        string GetId()
         {
             Properties.Settings.Default.idOrder = (Properties.Settings.Default.idOrder + 1);
             Properties.Settings.Default.Save();
             return (SALT + Properties.Settings.Default.idOrder.ToString());
 
         }
-
-        static public string PlaceStep1StopMarketBuyOrder()
+        public string Step1UP()
         {
             double price;
-            GlobalObjects.candleRetriever.Build12HourCandleAndDisplay();
-            price = PriceCalculator.CalcStopMarketBuyPriceStep1(GlobalObjects.one12HoursCandle[0]);
-
-
-
+            candleRetriever.Build12HourCandleAndDisplay();
+            price = PriceCalculator.GetPriceOrder1(candleRetriever.Candle12Hour);
             int qty = Properties.Settings.Default.BOTstartQty;
             price = Rounders.RoundBTC(price);
             string clorId = GetId();
-            GlobalObjects.bitmex.MarketStop(GlobalObjects.activeInstrument.Symbol, "Buy", price, qty, GlobalObjects.isexecByLastPrice, clorId);
+            bitmex.MarketStop(activeInstrument.ActiveSymbol, "Buy", price, qty, isExecByLastPrice, clorId);
             return clorId;
+
         }
-
-        static public string PlaceStep1TakeProfitSellOrder()
+        public string Step1DOWN()
         {
-            // rebuild candle if using in different strategy
-            double price;
-
-            GlobalObjects.candleRetriever.Build12HourCandleAndDisplay();
-            price = PriceCalculator.CalcTakeProfitSellPriceStep1(GlobalObjects.one12HoursCandle[0]);
-
-            price = Rounders.RoundBTC(price);
+            // order7
+            double price = 0;
+            candleRetriever.Build12HourCandleAndDisplay();
+            price = PriceCalculator.GetPriceOrder7(candleRetriever.Candle12Hour);
+            price = price = Rounders.RoundBTC(price);
             int qty = Properties.Settings.Default.BOTstartQty;
             string clorId = GetId();
-            GlobalObjects.bitmex.TakeProfitMarket(GlobalObjects.activeInstrument.Symbol, "Sell", price, qty, GlobalObjects.isexecByLastPrice, clorId);
+            bitmex.MarketStop(activeInstrument.ActiveSymbol, "Sell", price, qty, isExecByLastPrice, clorId);
             return clorId;
         }
-
-        // down
-        static public string PlaceStep1StopMarketSELLOrder()
-        {
-            double price;
-
-            GlobalObjects.candleRetriever.Build12HourCandleAndDisplay();
-            price = PriceCalculator.CalcStopMarketSellPriceStep1(GlobalObjects.one12HoursCandle[0]);
-            price = Rounders.RoundBTC(price);
-            int qty = Properties.Settings.Default.BOTstartQty;
-            string clorId = GetId();
-            GlobalObjects.bitmex.MarketStop(GlobalObjects.activeInstrument.Symbol, "Sell", price, qty, GlobalObjects.isexecByLastPrice, clorId);
-            return clorId;
-        }
-
-        static public string PlaceStep1TakeProfitBuyOrder()
-        {
-            double price;
-            // rebuild candle if using in different strategy
-
-            GlobalObjects.candleRetriever.Build12HourCandleAndDisplay();
-            price = PriceCalculator.CalcTakeProfitBuyPriceStep1(GlobalObjects.one12HoursCandle[0]);
-
-            price = Rounders.RoundBTC(price);
-            int qty = Properties.Settings.Default.BOTstartQty;
-            string clorId = GetId();
-            GlobalObjects.bitmex.TakeProfitMarket(GlobalObjects.activeInstrument.Symbol, "Buy", price, qty, GlobalObjects.isexecByLastPrice, clorId);
-            return clorId;
-        }
-
-        // STEP 1 closes here
-
-        // STEP 2
-        // up
-        static public string PlaceStep2StopMarketSELLOrder(Order ord)
-        {
-
-
-            double price = PriceCalculator.CalcStopMarketSELLStopPriceStep2(ord);
-            price = Rounders.RoundBTC(price);
-            int qty = QtyCalc.CalcStopMarketSELLQtyStep2(ord);
-            string clorId = GetId();
-            GlobalObjects.bitmex.MarketStop(GlobalObjects.activeInstrument.Symbol, "Sell", price, qty, GlobalObjects.isexecByLastPrice, clorId);
-            return clorId;
-        }
-
-        // down
-        static public string PlaceStep2StopMarketBuyOrder(Order ord)
-        {
-
-            double price = PriceCalculator.CalcStopMarketBUYStopPriceStep2(ord);
-            int qty = QtyCalc.CalcStopMarketBUYQtyStep2(ord);
-            string clorId = GetId();
-            price = Rounders.RoundBTC(price);
-            GlobalObjects.bitmex.MarketStop(GlobalObjects.activeInstrument.Symbol, "Buy", price, qty, GlobalObjects.isexecByLastPrice, clorId);
-
-            return clorId;
-        }
-        // Step 2 closes here 
-
-        // Step 3
-        // up
-        static public string PlaceStep3TakeProfitBuyOrder(Order ord)
+        public string Step2Order2(Order ord)
         {
             // rebuild candle if using in different strategy
-            double price = PriceCalculator.CalcTakeProfitBuyStopPriceStep3(ord);
+            double price = PriceCalculator.GetPriceOrder2(ord);
             price = Rounders.RoundBTC(price);
-            int qty = QtyCalc.CalcTakeProfitBuyQtyStep3(ord);
+            int qty = Properties.Settings.Default.order2Quantity;
             string clorId = GetId();
-            GlobalObjects.bitmex.TakeProfitMarket(GlobalObjects.activeInstrument.Symbol, "Buy", price, qty, GlobalObjects.isexecByLastPrice, clorId);
+            bitmex.TakeProfitMarket(activeInstrument.ActiveSymbol, "Sell", price, qty, isExecByLastPrice, clorId);
             return clorId;
         }
-
-        static public string PlaceStep3StopMarketBuyOrder(Order ord)
+        public string Step2Order3(Order ord)
         {
-
-            double price = PriceCalculator.CalcStopMarketBUYStopPriceStep3(ord);
-            price = Rounders.RoundBTC(price);
-            int qty = QtyCalc.CalcStopMarketBUYQtyceStep3(ord);
+            double price = PriceCalculator.GetPriceOrder3(ord);
+            price = price = Rounders.RoundBTC(price);
+            int qty = Properties.Settings.Default.order3Quantity;
             string clorId = GetId();
-            GlobalObjects.bitmex.MarketStop(GlobalObjects.activeInstrument.Symbol, "Buy", price, qty, GlobalObjects.isexecByLastPrice, clorId);
+            bitmex.MarketStop(activeInstrument.ActiveSymbol, "Sell", price, qty, isExecByLastPrice, clorId);
+            return clorId;
+        }
+        public string Step2Order4(Order ord)
+        {
+            double price = PriceCalculator.GetPriceOrder4(ord);
+            price = price = Rounders.RoundBTC(price);
+            int qty = Properties.Settings.Default.order4Quantity;
+            string clorId = GetId();
+            bitmex.MarketStop(activeInstrument.ActiveSymbol, "Sell", price, qty, isExecByLastPrice, clorId);
+            return clorId;
+        }
+        public string Step3Order5(Order ord)
+        {
+            double price = PriceCalculator.GetPriceOrder5(ord);
+            price = Rounders.RoundBTC(price);
+            int qty = Properties.Settings.Default.order5Quantity;
+            string clorId = GetId();
+            bitmex.TakeProfitMarket(activeInstrument.ActiveSymbol, "Buy", price, qty, isExecByLastPrice, clorId);
+            return clorId;
+        }
+        public string Step3Order6(Order ord)
+        {
+            double price = PriceCalculator.GetPriceOrder6(ord);
+            int qty = Properties.Settings.Default.order6Quantity;
+            string clorId = GetId();
+            price = Rounders.RoundBTC(price);
+            bitmex.MarketStop(activeInstrument.ActiveSymbol, "Buy", price, qty, isExecByLastPrice, clorId);
+
             return clorId;
         }
 
-        // down
-        static public string PlaceStep3TakeProfitSellOrder(Order ord)
+        public string Step2Order8(Order ord)
         {
             // rebuild candle if using in different strategy
-            double price = PriceCalculator.CalcTakeProfitSellStopPriceStep3(ord);
+            double price = PriceCalculator.GetPriceOrder8(ord);
             price = Rounders.RoundBTC(price);
-            int qty = QtyCalc.CalcTakeProfitSellQtyStep3(ord);
+            int qty = Properties.Settings.Default.order8Quantity;
             string clorId = GetId();
-            GlobalObjects.bitmex.TakeProfitMarket(GlobalObjects.activeInstrument.Symbol, "Sell", price, qty, GlobalObjects.isexecByLastPrice, clorId);
+            bitmex.TakeProfitMarket(activeInstrument.ActiveSymbol, "Buy", price, qty, isExecByLastPrice, clorId);
             return clorId;
         }
-
-        static public string PlaceStep3StopMarketSellOrder(Order ord)
+        public string Step2Order9(Order ord)
         {
-
-            double price = PriceCalculator.CalcStopMarketSellStopPriceStep3(ord);
-            price = Rounders.RoundBTC(price);
-            int qty = QtyCalc.CalcStopMarketSellQtyStep3(ord);
+            double price = PriceCalculator.GetPriceOrder9(ord);
+            price = price = Rounders.RoundBTC(price);
+            int qty = Properties.Settings.Default.order9Quantity;
             string clorId = GetId();
-            GlobalObjects.bitmex.MarketStop(GlobalObjects.activeInstrument.Symbol, "Sell", price, qty, GlobalObjects.isexecByLastPrice, clorId);
+            bitmex.MarketStop(activeInstrument.ActiveSymbol, "Buy", price, qty, isExecByLastPrice, clorId);
             return clorId;
         }
-        // Step 3 closes here
-
-        // Step 4 opens here
-        // up 
-        static public string PlaceStep4StopMarketSellOrder(Order ord)
+        public string Step2Order10(Order ord)
         {
-
-            double price = PriceCalculator.CalcStopMarketSELLStopPriceStep4(ord);
-            price = Rounders.RoundBTC(price);
-            int qty = QtyCalc.CalcStopMarketSELLQtyStep4(ord);
+            double price = PriceCalculator.GetPriceOrder10(ord);
+            price = price = Rounders.RoundBTC(price);
+            int qty = Properties.Settings.Default.order10Quantity;
             string clorId = GetId();
-            GlobalObjects.bitmex.MarketStop(GlobalObjects.activeInstrument.Symbol, "Sell", price, qty, GlobalObjects.isexecByLastPrice, clorId);
+            bitmex.MarketStop(activeInstrument.ActiveSymbol, "Buy", price, qty, isExecByLastPrice, clorId);
             return clorId;
         }
-
-        static public string PlaceStep4TakeProfitSellOrder(Order ord)
+        public string Step3Order11(Order ord)
         {
-            double price = PriceCalculator.CalcTakeProfitSELLStopPriceStep4(ord);
+            double price = PriceCalculator.GetPriceOrder11(ord);
             price = Rounders.RoundBTC(price);
-            int qty = QtyCalc.CalcTakeProfitSELLQtyStep4(ord);
+            int qty = Properties.Settings.Default.order11Quantity;
             string clorId = GetId();
-            GlobalObjects.bitmex.TakeProfitMarket(GlobalObjects.activeInstrument.Symbol, "Sell", price, qty, GlobalObjects.isexecByLastPrice, clorId);
+            bitmex.TakeProfitMarket(activeInstrument.ActiveSymbol, "Sell", price, qty, isExecByLastPrice, clorId);
             return clorId;
         }
-
-        // down
-        static public string PlaceStep4StopMarketBuyOrder(Order ord)
+        public string Step3Order12(Order ord)
         {
-
-            double price = PriceCalculator.CalcStopMarketBUYStopPriceStep4(ord);
-            price = Rounders.RoundBTC(price);
-            int qty = QtyCalc.CalcStopMarketBUYQtyStep4(ord);
+            double price = PriceCalculator.GetPriceOrder12(ord);
+            int qty = Properties.Settings.Default.order12Quantity;
             string clorId = GetId();
-            GlobalObjects.bitmex.MarketStop(GlobalObjects.activeInstrument.Symbol, "Buy", price, qty, GlobalObjects.isexecByLastPrice, clorId);
+            price = Rounders.RoundBTC(price);
+            bitmex.MarketStop(activeInstrument.ActiveSymbol, "Sell", price, qty, isExecByLastPrice, clorId);
+
             return clorId;
         }
-
-        static public string PlaceStep4TakeProfitBuyOrder(Order ord)
-        {
-            double price = PriceCalculator.CalcTakeProfitBUYStopPriceStep4(ord);
-            price = Rounders.RoundBTC(price);
-            int qty = QtyCalc.CalcTakeProfitBUYQtyStep4(ord);
-            string clorId = GetId();
-            GlobalObjects.bitmex.TakeProfitMarket(GlobalObjects.activeInstrument.Symbol, "Buy", price, qty, GlobalObjects.isexecByLastPrice, clorId);
-            return clorId;
-        }
-
     }
 }

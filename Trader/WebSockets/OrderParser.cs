@@ -2,14 +2,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
+
+
 namespace Trader.WebSockets
 {
-    static class OrderParser
+    public class OrderParser
     {
-        public static bool Partial(JArray TD)
+        OrdersOnlineDTO ordersDTO;
+        public OrderParser(OrdersOnlineDTO _ordersDTO)
+        {
+            this.ordersDTO = _ordersDTO;
+        }
+        public bool Partial(JArray TD)
         {
             if (!TD.Any())
             {
@@ -29,69 +37,55 @@ namespace Trader.WebSockets
                     OrdStatus = item["ordStatus"].ToString(),
                     OrderId = item["orderID"].ToString()
                 };
+                this.ordersDTO.TryInsertReplace(or);
 
-                if (GlobalObjects.lastOrders.ContainsKey(or.ClOrdID))
-                {
 
-                    GlobalObjects.lastOrders[or.ClOrdID] = or;
-
-                }
-                else
-                {
-                    GlobalObjects.lastOrders.Add(or.ClOrdID, or);
-                }
 
             }
             return true;
 
         }
 
-        public static bool Update(JArray TD)
+        public bool Update(JArray TD)
         {
             if (!TD.Any())
             {
                 Console.WriteLine("no update data");
                 return false;
             }
+            bool success = true;
 
             foreach (JObject item in TD)
             {
                 string clOrdID = item["clOrdID"].ToString();
-                if (GlobalObjects.lastOrders.ContainsKey(clOrdID))
+                string stopPx = null;
+                string ordStatus = null;
+                int? orderQty = null;
+                if (item.ContainsKey("stopPx"))
                 {
-
-                    GlobalObjects.lastOrders[clOrdID].Symbol = item["symbol"].ToString();
-
-
-                    if (item.ContainsKey("stopPx"))
-                    {
-                        GlobalObjects.lastOrders[clOrdID].StopPx = item["stopPx"].ToString();
-                    }
-                    if (item.ContainsKey("ordStatus"))
-                    {
-                        GlobalObjects.lastOrders[clOrdID].OrdStatus = item["ordStatus"].ToString();
-
-                    }
-
-                    if (item.ContainsKey("orderQty"))
-                    {
-                        GlobalObjects.lastOrders[clOrdID].OrderQty = Int32.Parse(item["orderQty"].ToString());
-                    }
-
-
-
+                    stopPx = item["stopPx"].ToString();
                 }
-                else
+                if (item.ContainsKey("ordStatus"))
                 {
-                    Console.WriteLine("[ERROR] tried to update not existing order with ClorID:" + item["clOrdID"].ToString());
-                    return false;
+                    ordStatus = item["ordStatus"].ToString();
+                }
+
+                if (item.ContainsKey("orderQty"))
+                {
+                    orderQty = Convert.ToInt32(item["orderQty"].ToString());
+                }
+               bool res =  this.ordersDTO.TryUpdate(clOrdID, stopPx, ordStatus, orderQty);
+                if (success = true && res == false)
+                {
+                    success = res;
                 }
             }
-            return true;
-
+            return success;
         }
 
-        public static bool Insert(JArray TD)
+
+
+        public bool Insert(JArray TD)
         {
             if (!TD.Any())
             {
@@ -133,18 +127,7 @@ namespace Trader.WebSockets
                 {
                     Console.WriteLine("[ERROR] insert oder cLOrdID is null");
                 }
-                if (GlobalObjects.lastOrders.ContainsKey(or.ClOrdID))
-                {
-
-                    GlobalObjects.lastOrders[or.ClOrdID] = or;
-
-
-                }
-                else
-                {
-                    GlobalObjects.lastOrders.Add(or.ClOrdID, or);
-
-                }
+                this.ordersDTO.TryInsertReplace(or);
             }
             return true;
         }

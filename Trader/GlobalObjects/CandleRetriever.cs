@@ -9,17 +9,44 @@ namespace Trader
 {
     class CandleRetriever
     {
+
+        private static CandleRetriever instance = null;
+        BitmexApiConnector bitmex;
+        ActiveInstrument activeInstruments;
+        volatile public static int tradeTime = 0;
+        volatile public static List<Candle> listof12Candles = new List<Candle>();
+        volatile public static List<Candle> one12HoursCandle = new List<Candle>();
+        volatile public static List<Candle> Candles = new List<Candle>();
+
+        private CandleRetriever()
+        {
+            bitmex = BitmexApiConnector.Instance;
+            activeInstruments = ActiveInstrument.Instance;
+        }
+
+        public static CandleRetriever Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new CandleRetriever();
+                }
+
+                return instance;
+            }
+        }
         public void Build12HourCandleAndDisplay()
         {
-            GlobalObjects.one12HoursCandle.Clear();
+            one12HoursCandle.Clear();
             Candle c = new Candle();
             UpdateCandleLast12Hours();
-            c.High = GlobalObjects.listof12Candles.Max(a => a.High);
-            c.Low = GlobalObjects.listof12Candles.Min(a => a.Low);
-            c.Open = GlobalObjects.listof12Candles.Last<Candle>().Open;
-            c.Close = GlobalObjects.listof12Candles.First<Candle>().Close;
+            c.High = listof12Candles.Max(a => a.High);
+            c.Low = listof12Candles.Min(a => a.Low);
+            c.Open = listof12Candles.Last<Candle>().Open;
+            c.Close = listof12Candles.First<Candle>().Close;
 
-            GlobalObjects.one12HoursCandle.Add(c);
+            one12HoursCandle.Add(c);
         }
         private void UpdateCandleLast12Hours()
         {
@@ -30,20 +57,24 @@ namespace Trader
             // gets AM / PM MessageBox.Show(datetime.ToString("tt"));
             if (datetime.Hour >= 0 && datetime.Second > 0 && datetime.Hour < 12 && areWeAM)
             {
-                GlobalObjects.candles = GlobalObjects.bitmex.GetCandleHistory(GlobalObjects.activeInstrument.Symbol, Convert.ToInt32(100), "1h");
+                Candles = bitmex.GetCandleHistory(activeInstruments.ActiveSymbol, Convert.ToInt32(100), "1h");
                 // candles.Where(a => a.TimeStamp.Hour <= 2).Take(12);
-                GlobalObjects.listof12Candles = GlobalObjects.candles.Where(a => ((a.TimeStamp.Hour == 0 && (string.Compare((a.TimeStamp.ToString("tt")), "AM") == 0)) || (a.TimeStamp.Hour <= 23 && a.TimeStamp.Hour >= 13 && (string.Compare((a.TimeStamp.ToString("tt")), "PM") == 0)))).OrderByDescending(a => a.TimeStamp).Take(12).ToList<Candle>();
+                listof12Candles = Candles.Where(a => ((a.TimeStamp.Hour == 0 && (string.Compare((a.TimeStamp.ToString("tt")), "AM") == 0)) || (a.TimeStamp.Hour <= 23 && a.TimeStamp.Hour >= 13 && (string.Compare((a.TimeStamp.ToString("tt")), "PM") == 0)))).OrderByDescending(a => a.TimeStamp).Take(12).ToList<Candle>();
                 //.OrderByDescending(a =>a.TimeStamp).Take(12).ToList<Candle>();
                 // listof12Candles = candles.Where(a => ( a.TimeStamp.Hour <= 23 && a.TimeStamp.Hour >=13)).Take(10).OrderByDescending(a => a.TimeStamp).ToList<Candle>();
-                GlobalObjects.tradeTime = 1;
+                tradeTime = 1;
             }
             else if (datetime.Hour >= 12 && datetime.Second > 0 && !areWeAM)
             {
-                GlobalObjects.candles = GlobalObjects.bitmex.GetCandleHistory(GlobalObjects.activeInstrument.Symbol, Convert.ToInt32(100), "1h");
-                GlobalObjects.listof12Candles = GlobalObjects.candles.Where(a => ((a.TimeStamp.Hour == 12 && (string.Compare((a.TimeStamp.ToString("tt")), "PM") == 0)) || (a.TimeStamp.Hour <= 12 && a.TimeStamp.Hour >= 1 && (string.Compare((a.TimeStamp.ToString("tt")), "AM") == 0)))).OrderByDescending(a => a.TimeStamp).Take(12).ToList<Candle>();
-                GlobalObjects.tradeTime = 2;
+                Candles = bitmex.GetCandleHistory(activeInstruments.ActiveSymbol, Convert.ToInt32(100), "1h");
+                listof12Candles = Candles.Where(a => ((a.TimeStamp.Hour == 12 && (string.Compare((a.TimeStamp.ToString("tt")), "PM") == 0)) || (a.TimeStamp.Hour <= 12 && a.TimeStamp.Hour >= 1 && (string.Compare((a.TimeStamp.ToString("tt")), "AM") == 0)))).OrderByDescending(a => a.TimeStamp).Take(12).ToList<Candle>();
+                tradeTime = 2;
             }
 
+        }
+        public Candle Candle12Hour
+        {
+            get { return one12HoursCandle[0]; }
         }
     }
 }

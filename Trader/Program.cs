@@ -16,6 +16,7 @@ namespace Trader
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
             Form1 fm = new Form1();
             Application.Run(fm);
             

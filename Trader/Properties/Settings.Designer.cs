@@ -26,174 +26,6 @@ namespace Trader.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public decimal Step1StopMarketBUYPRICE {
-            get {
-                return ((decimal)(this["Step1StopMarketBUYPRICE"]));
-            }
-            set {
-                this["Step1StopMarketBUYPRICE"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public decimal Step1TakeProfitSELLPercent {
-            get {
-                return ((decimal)(this["Step1TakeProfitSELLPercent"]));
-            }
-            set {
-                this["Step1TakeProfitSELLPercent"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public decimal Step1StopMarketSELLPRICE {
-            get {
-                return ((decimal)(this["Step1StopMarketSELLPRICE"]));
-            }
-            set {
-                this["Step1StopMarketSELLPRICE"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public decimal Step1TakeProfitBUYPercent {
-            get {
-                return ((decimal)(this["Step1TakeProfitBUYPercent"]));
-            }
-            set {
-                this["Step1TakeProfitBUYPercent"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public decimal Step2StopMarketSELLPercent {
-            get {
-                return ((decimal)(this["Step2StopMarketSELLPercent"]));
-            }
-            set {
-                this["Step2StopMarketSELLPercent"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public decimal Step2StopMarketBuyPercent {
-            get {
-                return ((decimal)(this["Step2StopMarketBuyPercent"]));
-            }
-            set {
-                this["Step2StopMarketBuyPercent"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public decimal Step3TakeProfitBUYPercent {
-            get {
-                return ((decimal)(this["Step3TakeProfitBUYPercent"]));
-            }
-            set {
-                this["Step3TakeProfitBUYPercent"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public decimal Step3StopMarketBUYPercent {
-            get {
-                return ((decimal)(this["Step3StopMarketBUYPercent"]));
-            }
-            set {
-                this["Step3StopMarketBUYPercent"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public decimal Step3TakeProfitSELLPercent {
-            get {
-                return ((decimal)(this["Step3TakeProfitSELLPercent"]));
-            }
-            set {
-                this["Step3TakeProfitSELLPercent"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public decimal Step3StopMarketSELLPercent {
-            get {
-                return ((decimal)(this["Step3StopMarketSELLPercent"]));
-            }
-            set {
-                this["Step3StopMarketSELLPercent"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public decimal Step4TakeProfitSELLPercent {
-            get {
-                return ((decimal)(this["Step4TakeProfitSELLPercent"]));
-            }
-            set {
-                this["Step4TakeProfitSELLPercent"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public decimal Step4StopMarketSELLPercent {
-            get {
-                return ((decimal)(this["Step4StopMarketSELLPercent"]));
-            }
-            set {
-                this["Step4StopMarketSELLPercent"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public decimal Step4TakeProfitBUYPercent {
-            get {
-                return ((decimal)(this["Step4TakeProfitBUYPercent"]));
-            }
-            set {
-                this["Step4TakeProfitBUYPercent"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public decimal Step4StopMarketBUYPercent {
-            get {
-                return ((decimal)(this["Step4StopMarketBUYPercent"]));
-            }
-            set {
-                this["Step4StopMarketBUYPercent"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public decimal Network {
             get {
                 return ((decimal)(this["Network"]));
@@ -296,6 +128,282 @@ namespace Trader.Properties {
             }
             set {
                 this["socketDomain"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public decimal order1Price {
+            get {
+                return ((decimal)(this["order1Price"]));
+            }
+            set {
+                this["order1Price"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public decimal order7Price {
+            get {
+                return ((decimal)(this["order7Price"]));
+            }
+            set {
+                this["order7Price"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public decimal order2Percent {
+            get {
+                return ((decimal)(this["order2Percent"]));
+            }
+            set {
+                this["order2Percent"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public decimal order3Percent {
+            get {
+                return ((decimal)(this["order3Percent"]));
+            }
+            set {
+                this["order3Percent"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public decimal order4Percent {
+            get {
+                return ((decimal)(this["order4Percent"]));
+            }
+            set {
+                this["order4Percent"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public decimal order5Percent {
+            get {
+                return ((decimal)(this["order5Percent"]));
+            }
+            set {
+                this["order5Percent"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public decimal order6Percent {
+            get {
+                return ((decimal)(this["order6Percent"]));
+            }
+            set {
+                this["order6Percent"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public decimal order8Percent {
+            get {
+                return ((decimal)(this["order8Percent"]));
+            }
+            set {
+                this["order8Percent"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public decimal order9Percent {
+            get {
+                return ((decimal)(this["order9Percent"]));
+            }
+            set {
+                this["order9Percent"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public decimal order10Percent {
+            get {
+                return ((decimal)(this["order10Percent"]));
+            }
+            set {
+                this["order10Percent"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public decimal order11Percent {
+            get {
+                return ((decimal)(this["order11Percent"]));
+            }
+            set {
+                this["order11Percent"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public decimal order12Percent {
+            get {
+                return ((decimal)(this["order12Percent"]));
+            }
+            set {
+                this["order12Percent"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int order2Quantity {
+            get {
+                return ((int)(this["order2Quantity"]));
+            }
+            set {
+                this["order2Quantity"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int order3Quantity {
+            get {
+                return ((int)(this["order3Quantity"]));
+            }
+            set {
+                this["order3Quantity"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int order4Quantity {
+            get {
+                return ((int)(this["order4Quantity"]));
+            }
+            set {
+                this["order4Quantity"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int order5Quantity {
+            get {
+                return ((int)(this["order5Quantity"]));
+            }
+            set {
+                this["order5Quantity"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int order6Quantity {
+            get {
+                return ((int)(this["order6Quantity"]));
+            }
+            set {
+                this["order6Quantity"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int order8Quantity {
+            get {
+                return ((int)(this["order8Quantity"]));
+            }
+            set {
+                this["order8Quantity"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int order9Quantity {
+            get {
+                return ((int)(this["order9Quantity"]));
+            }
+            set {
+                this["order9Quantity"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int order10Quantity {
+            get {
+                return ((int)(this["order10Quantity"]));
+            }
+            set {
+                this["order10Quantity"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int order11Quantity {
+            get {
+                return ((int)(this["order11Quantity"]));
+            }
+            set {
+                this["order11Quantity"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int order12Quantity {
+            get {
+                return ((int)(this["order12Quantity"]));
+            }
+            set {
+                this["order12Quantity"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Setting {
+            get {
+                return ((string)(this["Setting"]));
+            }
+            set {
+                this["Setting"] = value;
             }
         }
     }

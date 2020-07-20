@@ -5,102 +5,73 @@ namespace Trader
 {
     public static class PriceCalculator
     {
-
-        // step 1
-        public static double CalcStopMarketBuyPriceStep1(Candle c)
+        public static double GetPriceOrder1(Candle c)
         {
             if (null == c.High)
             {
-
                 return 0;
             }
             else
             {
-
-                return (double)c.High + Convert.ToDouble(Properties.Settings.Default.Step1StopMarketBUYPRICE);
+                return (double)c.High + Convert.ToDouble(Properties.Settings.Default.order1Price);
             }
 
         }
 
-        public static double CalcTakeProfitSellPriceStep1(Candle c)
+        public static double GetPriceOrder2(Order o)
         {
-            return CalcStopMarketBuyPriceStep1(c) * (100 + Convert.ToDouble(Properties.Settings.Default.Step1TakeProfitSELLPercent)) / 100;
+            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.order2Percent)) / 100;
         }
 
-        // botoom part
-        public static double CalcStopMarketSellPriceStep1(Candle c)
+        public static double GetPriceOrder3(Order o)
         {
+            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.order3Percent)) / 100;
+        }
+        public static double GetPriceOrder4(Order o)
+        {
+            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.order4Percent)) / 100;
+        }
+        public static double GetPriceOrder5(Order o)
+        {
+            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.order5Percent)) / 100;
+        }
+        public static double GetPriceOrder6(Order o)
+        {
+            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.order6Percent)) / 100;
+        }
+        public static double GetPriceOrder7(Candle c)
+        {
+
             if (null == c.Low)
             {
-                //MessageBox.Show("FATAL ERROR PRICE CALC");
                 return 0;
             }
             else
+
             {
-                return (double)c.Low + Convert.ToDouble(Properties.Settings.Default.Step1StopMarketSELLPRICE);
+                return (double)c.Low + Convert.ToDouble(Properties.Settings.Default.order7Price);
             }
-
         }
-
-        public static double CalcTakeProfitBuyPriceStep1(Candle c)
+        public static double GetPriceOrder8(Order o)
         {
-            return CalcStopMarketSellPriceStep1(c) * (100 + Convert.ToDouble(Properties.Settings.Default.Step1TakeProfitBUYPercent)) / 100;
+            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.order8Percent)) / 100;
         }
-
-        // step 2
-        public static double CalcStopMarketSELLStopPriceStep2(Order o)
+        public static double GetPriceOrder9(Order o)
         {
-            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.Step2StopMarketSELLPercent)) / 100;
+            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.order9Percent)) / 100;
         }
-
-        public static double CalcStopMarketBUYStopPriceStep2(Order o)
+        public static double GetPriceOrder10(Order o)
         {
-            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.Step2StopMarketBuyPercent)) / 100;
+            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.order10Percent)) / 100;
         }
-
-        // step 3
-        public static double CalcTakeProfitBuyStopPriceStep3(Order o)
+        public static double GetPriceOrder11(Order o)
         {
-            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.Step3TakeProfitBUYPercent)) / 100;
+            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.order11Percent)) / 100;
         }
-
-        public static double CalcStopMarketBUYStopPriceStep3(Order o)
+        public static double GetPriceOrder12(Order o)
         {
-            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.Step3StopMarketBUYPercent)) / 100;
+            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.order12Percent)) / 100;
         }
-
-        public static double CalcTakeProfitSellStopPriceStep3(Order o)
-        {
-            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.Step3TakeProfitSELLPercent)) / 100;
-        }
-
-        public static double CalcStopMarketSellStopPriceStep3(Order o)
-        {
-            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.Step3StopMarketSELLPercent)) / 100;
-        }
-
-        // step 4
-        public static double CalcStopMarketSELLStopPriceStep4(Order o)
-        {
-            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.Step4StopMarketSELLPercent)) / 100;
-        }
-
-        public static double CalcStopMarketBUYStopPriceStep4(Order o)
-        {
-            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.Step4StopMarketBUYPercent)) / 100;
-        }
-
-        public static double CalcTakeProfitSELLStopPriceStep4(Order o)
-        {
-            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.Step4TakeProfitSELLPercent)) / 100;
-        }
-
-        public static double CalcTakeProfitBUYStopPriceStep4(Order o)
-        {
-            return Convert.ToDouble(o.StopPx) * (100 + Convert.ToDouble(Properties.Settings.Default.Step4TakeProfitBUYPercent)) / 100;
-        }
-
-
 
     }
 }

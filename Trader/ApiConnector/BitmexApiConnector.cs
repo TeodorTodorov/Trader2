@@ -16,37 +16,52 @@ namespace
 {
     public sealed class BitmexApiConnector
     {
-        private readonly string domain;
-        private readonly string apiKey;
-        private readonly string apiSecret;
+        private string domain;
+        private string apiKey;
+        private string apiSecret;
 
-        //private static BitmexApiConnector instance = null;
+        private static BitmexApiConnector instance = null;
 
-        //private BitmexApiConnector()
-        //{
-        //}
-
-        //public static BitmexApiConnector Instance
-        //{
-        //    get
-        //    {
-        //        if (instance == null)
-        //        {
-        //            instance = new BitmexApiConnector();
-        //        }
-
-        //        return instance;
-        //    }
-        //}
-
-        public BitmexApiConnector(string bitmexKey = "", string bitmexSecret = "", string domain = "")
+        private BitmexApiConnector()
         {
-            this.apiKey = bitmexKey;
-            this.apiSecret = bitmexSecret;
-
-            this.domain = domain;
-            //  InitializeFileLoggers();
         }
+
+        public static BitmexApiConnector Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new BitmexApiConnector();
+                }
+
+                return instance;
+            }
+        }
+        public string Domain
+        {
+            get { return this.domain; }
+            set { this.domain = value; }
+        }
+        public string ApiKey
+        {
+            get { return this.apiKey; }
+            set { this.apiKey = value; }
+        }
+        public string ApiSecret
+        {
+            get { return this.apiSecret; }
+            set { this.apiSecret = value; }
+        }
+
+        //public BitmexApiConnector(string bitmexKey = "", string bitmexSecret = "", string domain = "")
+        //{
+        //    this.apiKey = bitmexKey;
+        //    this.apiSecret = bitmexSecret;
+
+        //    this.domain = domain;
+        //    //  InitializeFileLoggers();
+        //}
 
         private long GetExpires()
         {

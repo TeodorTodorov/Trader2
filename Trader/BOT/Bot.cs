@@ -11,595 +11,262 @@ using System.Threading.Tasks;
 
 using System.Threading;
 using Trader;
+using System.Windows.Markup;
 
 namespace Trader
 {
-    class Bot
+    class Bot : IObserver<OrdersOnlineDTO>
     {
+        private volatile CandleRetriever candleRetriever;
+        private volatile BitmexApiConnector bitmex;
+        volatile BotApiCalls botApiCalls;
+        volatile OrdersOnlineDTO orderDTO;
+        volatile Dictionary<int, string> sucessfullOrders;
+        volatile int stepUP;
+        volatile int stepDOWN;
+        volatile bool isUpTrading;
+        volatile bool isDownTrading;
+        volatile SemaphoreSlim semaphoreSlim;
 
-
-        // step 1
-        // UP 
-        public bool continueWithUP = true;
-        public int executedStepUP = 0;
-        public List<string> postedTakeProfitOrdersIDUP = new List<string>();
-        public List<string> postedStopMarketOrderIDUP = new List<string>();
-
-        public string Step1IdSMB;
-        public string Step1IdTPS;
-        // down 
-        public bool continueWithDown = true;
-        public int executedStepDown = 0;
-        public string Step1IdSMS;
-        public string Step1IdTPB;
-        public List<string> postedTakeProfitOrdersIDDown = new List<string>();
-        public List<string> postedStopMarketOrderIDDown = new List<string>();
-
-
-
-        // step 2
-        // UP
-        string step2IdSMS;
-        // DOWN
-        string step2IdSMB;
-
-        // step 3
-        // UP
-        string step3IdTPB;
-        string step3IdSMB;
-        // DOWN
-        string step3IdTPS;
-        string step3IdSMS;
-
-        //Step 4 
-        // UP
-        string step4IdSMS;
-        string step4IdTPS;
-        // DOWN
-        string step4IdSMB;
-        string step4IdTPB;
-
-        public Bot()
+        public Bot(OrdersOnlineDTO _orderDTO)
         {
-            // GlobalObjects.bitmex = BitmexApiConnector.Instance;
-
-
-
+            bitmex = BitmexApiConnector.Instance;
+            candleRetriever = CandleRetriever.Instance;
+            botApiCalls = BotApiCalls.Instance;
+            this.orderDTO = _orderDTO;
+            sucessfullOrders = new Dictionary<int, String>();
+            stepDOWN = 0;
+            stepUP = 0;
+            isUpTrading = false;
+            isDownTrading = false;
+            semaphoreSlim = new SemaphoreSlim(1, 1);
         }
-        Order GetOrderWithID( string id)
+        public void Start()
         {
-
-            return GlobalObjects.lastOrders[id.ToString()];
-
+            isUpTrading = true;
+            isDownTrading = true;
+            TickOnce();
         }
-
-        bool IsOrderWithIDFilled(string id)
+        public void PauseStop()
         {
-            if (GlobalObjects.lastOrders.ContainsKey(id))
+            isUpTrading = false;
+            isDownTrading = false;
+        }
+        public void PauseResume()
+        {
+            isUpTrading = true;
+            isDownTrading = true;
+            TickOnce();
+        }
+        public async void  TickOnce()
+        {
+            await semaphoreSlim.WaitAsync();
+            try
             {
-                return String.Compare(GetOrderWithID( id).OrdStatus, "Filled") == 0;
+                await Task.Run(() =>
+                {
+                    Console.WriteLine();
+                    Console.WriteLine("RUN bot thread-------------------------------------------------");
+                    Console.WriteLine();
+                    Tick();
+                    Console.WriteLine();
+                    Console.WriteLine("RUN bot thread finised--------------------------");
+                    Console.WriteLine();
+                });
             }
-            return false;
-
-        }
-        void StartUPCandleTrading()
-        {
-            Step1IdSMB = BotApiCalls.PlaceStep1StopMarketBuyOrder();
-            Step1IdTPS = BotApiCalls.PlaceStep1TakeProfitSellOrder();
-
-            postedTakeProfitOrdersIDUP.Add(Step1IdTPS);
-            postedStopMarketOrderIDUP.Add(Step1IdSMB);
-            executedStepUP = 1;
-
-
-
-
-        }
-        void StartDOWNCandleTrading()
-        {
-            Step1IdSMS = BotApiCalls.PlaceStep1StopMarketSELLOrder();
-            Step1IdTPB = BotApiCalls.PlaceStep1TakeProfitBuyOrder();
-
-            postedTakeProfitOrdersIDDown.Add(Step1IdTPB);
-            postedStopMarketOrderIDDown.Add(Step1IdSMS);
-
-            executedStepDown = 1;
-        }
-        void Step1()
-        {
-            StartUPCandleTrading();
-            StartDOWNCandleTrading();
-            Console.WriteLine("[BOT] step 1 posted");
-
-        }
-
-
-        // STEP 2
-        // UP
-        void BOTExecuteStep2UPIfContiNueAndFilledStopMarketStep1BUY()
-        {
-            if (continueWithUP && IsOrderWithIDFilled(Step1IdSMB))
+            finally
             {
-                step2IdSMS = BotApiCalls.PlaceStep2StopMarketSELLOrder(GetOrderWithID(Step1IdSMB));
-                postedStopMarketOrderIDUP.Add(step2IdSMS);
-                executedStepUP = 2;
-                Console.WriteLine("[BOT] step 2 up posted");
+                //When the task is ready, release the semaphore. It is vital to ALWAYS release the semaphore when we are ready, or else we will end up with a Semaphore that is forever locked.
+                //This is why it is important to do the Release within a try...finally clause; program execution may crash or take a different path, this way you are guaranteed execution
+                semaphoreSlim.Release();
+                Console.WriteLine();
+                Console.WriteLine("SEMAPHORE RELEASED-------------------");
+                Console.WriteLine();
+            }
+          
+        }
+        void Tick()
+        {
+            Console.WriteLine("Tick runned");
+            if (isUpTrading)
+            {
+                this.TickUP();
+            }
+            if (isDownTrading)
+            {
+                this.TickDOWN();
             }
         }
-        // DOWN
-        void BOTExecuteStep2DownIfContinueAndFilledStopMarketStep1SELL()
+        public void OnCompleted()
         {
-            if (continueWithDown && IsOrderWithIDFilled(Step1IdSMS))
-            {
-                step2IdSMB = BotApiCalls.PlaceStep2StopMarketBuyOrder(GetOrderWithID(Step1IdSMS));
-                postedStopMarketOrderIDDown.Add(step2IdSMB);
-                executedStepDown = 2;
-                Console.WriteLine("[BOT] step 2 down posted");
-            }
+            throw new NotImplementedException();
         }
 
-        // STEP 3
-        // UP
-        void BOTExecuteStep3UPIfContinueAndFilledStopMarketStep2Sell()
+        public void OnError(Exception error)
         {
+            throw new NotImplementedException();
+        }
+
+        public void OnNext(OrdersOnlineDTO _value)
+        {
+            orderDTO = _value;
+            TickOnce();
+        }
+
+        void TickUP()
+        {
+            switch (stepUP)
+            {
+                case 0: Step1UP(); break;
+                case 1:
+                    if (string.Compare(orderDTO.GetByClorId(sucessfullOrders[1]).OrdStatus, "Filled") == 0)
+                    {
+                        Step2UP();
+                    }; break;
+                case 2:
+                    if (string.Compare(orderDTO.GetByClorId(sucessfullOrders[2]).OrdStatus, "Filled") == 0)
+                    {
+                        Step3UPOrder2Filled();
+                    }
+                    if (string.Compare(orderDTO.GetByClorId(sucessfullOrders[3]).OrdStatus, "Filled") == 0 || string.Compare(orderDTO.GetByClorId(sucessfullOrders[4]).OrdStatus, "Filled") == 0)
+                    {
+                        Step3UPOrder3or4Filled();
+                    }; break;
+                case 3:
+                    if (string.Compare(orderDTO.GetByClorId(sucessfullOrders[5]).OrdStatus, "Filled") == 0)
+                    {
+                        Step4UPOrder5Filled();
+                    }
+                    if (string.Compare(orderDTO.GetByClorId(sucessfullOrders[6]).OrdStatus, "Filled") == 0)
+                    {
+                        Step4UPOrder6Filled();
+                    }; break;
+
+                default: throw new Exception("Error stepUp case, values:" + stepUP);
+
+            }
             
-            // if we are at up trade on 3rd step and Stop market sell from step2 is filled
-            if (continueWithUP && IsOrderWithIDFilled(step2IdSMS))
-            {
-                GlobalObjects.bitmex.DeleteOrder(Step1IdTPS);
-                step3IdTPB = BotApiCalls.PlaceStep3TakeProfitBuyOrder(GetOrderWithID(step2IdSMS));
-                step3IdSMB = BotApiCalls.PlaceStep3StopMarketBuyOrder(GetOrderWithID(step2IdSMS));
-                postedTakeProfitOrdersIDUP.Add(step3IdTPB);
-                postedStopMarketOrderIDUP.Add(step3IdSMB);
-                executedStepUP = 3;
-                Console.WriteLine("[BOT] step 3 up posted");
-
-            }
         }
-        // DOWN
-        void BOTExecuteStep3DownIfContinueAndFilledStopMarketStep2Buy()
+        void TickDOWN()
         {
-     
-            // if we are at down trade on step 3 and stop market buy is filled from 2nd step
-            if (continueWithDown && IsOrderWithIDFilled(step2IdSMB))
+            switch (stepDOWN)
             {
-                GlobalObjects.bitmex.DeleteOrder(Step1IdTPB);
-                step3IdTPS = BotApiCalls.PlaceStep3TakeProfitSellOrder(GetOrderWithID(step2IdSMB));
-                step3IdSMS = BotApiCalls.PlaceStep3StopMarketSellOrder(GetOrderWithID(step2IdSMB));
-                postedTakeProfitOrdersIDDown.Add(step3IdTPS);
-                postedStopMarketOrderIDDown.Add(step3IdSMS);
-                executedStepDown = 3;
-                Console.WriteLine("[BOT] step 3 down posted");
+                case 0: Step1DOWN(); break;
+                case 1:
+                    if (string.Compare(orderDTO.GetByClorId(sucessfullOrders[7]).OrdStatus, "Filled") == 0)
+                    {
+                        Step2DOWN();
+                    }; break;
+                case 2:
+                    if (string.Compare(orderDTO.GetByClorId(sucessfullOrders[8]).OrdStatus, "Filled") == 0)
+                    {
+                        Step3DOWNOrder8Filled();
+                    }
+                    if (string.Compare(orderDTO.GetByClorId(sucessfullOrders[9]).OrdStatus, "Filled") == 0 || string.Compare(orderDTO.GetByClorId(sucessfullOrders[10]).OrdStatus, "Filled") == 0)
+                    {
+                        Step3DOWNOrder9or10Filled();
+                    }; break;
+                case 3:
+                    if (string.Compare(orderDTO.GetByClorId(sucessfullOrders[11]).OrdStatus, "Filled") == 0)
+                    {
+                        Step4DOWNOrder11Filled();
+                    }
+                    if (string.Compare(orderDTO.GetByClorId(sucessfullOrders[12]).OrdStatus, "Filled") == 0)
+                    {
+                        Step4DOWNOrder12Filled();
+                    }
+                    ; break;
+
+                default:
+                    throw new Exception("Error stepDOWN case, values:" + stepDOWN);
 
             }
         }
 
-        // STEP 4
-        // UP
-        void BOTExecuteStep4UPIfContinueAndFilledStopMarketStep3Buy()
+        void Step1UP()
         {
-   
-            // if we are at up trade on 3rd step and step market buy from 3rd step is filled
-            if (continueWithUP && IsOrderWithIDFilled(step3IdSMB))
-            {
-                GlobalObjects.bitmex.DeleteOrder(step3IdTPB);
-                step4IdTPS = BotApiCalls.PlaceStep4TakeProfitSellOrder(GetOrderWithID(step3IdSMB));
-                step4IdSMS = BotApiCalls.PlaceStep4StopMarketSellOrder(GetOrderWithID(step3IdSMB));
-                postedTakeProfitOrdersIDUP.Add(step4IdTPS);
-                postedStopMarketOrderIDUP.Add(step4IdSMS);
-
-                executedStepUP = 4;
-                Console.WriteLine("[BOT] step 4 up posted");
-
-            }
+            sucessfullOrders[1] = botApiCalls.Step1UP();
+            stepUP = 1;
         }
-
-        // DOWN
-        void BOTExecuteStep4DownIfContinueAndFilledStopMarketStep3Sell()
+        void Step1DOWN()
         {
-            // if we are at up trade on 3rd step and stop market sell from 3rd step is filled
-            if (continueWithUP && IsOrderWithIDFilled(step3IdSMS))
-            {
-                GlobalObjects.bitmex.DeleteOrder(Step1IdTPS);
-                step4IdTPB = BotApiCalls.PlaceStep4TakeProfitBuyOrder(GetOrderWithID( step3IdSMS));
-                step4IdSMB = BotApiCalls.PlaceStep4StopMarketBuyOrder(GetOrderWithID( step3IdSMS));
-                postedTakeProfitOrdersIDDown.Add(step4IdTPB);
-                postedStopMarketOrderIDDown.Add(step4IdSMB);
-                executedStepDown = 4;
-                Console.WriteLine("[BOT] step 4 down posted");
-
-            }
+            sucessfullOrders[7] = botApiCalls.Step1DOWN();
+            stepDOWN = 1;
         }
-
-
-
-
-
-        void BOTCandleExecuteStep1UpAndDown()
+        void Step2UP()
         {
-            Step1();
-            Thread.Sleep(500);
-            if (IsOrderWithIDFilled(Step1IdTPS))
-            {
-  
-                // if we TakeProfit from up trade on Step1 we stop the bot
-                continueWithUP = false;
-                Console.WriteLine("[BOT]  continueWithUP = false;");
-            }
-            if (IsOrderWithIDFilled(Step1IdTPB))
-            {
-                // if we TakeProfit from down trade on Step1 we stop the bot
-                continueWithDown = false;
-                Console.WriteLine("[BOT]  continueWithDown = false;");
-            }
+            Order order1 = orderDTO.GetByClorId(sucessfullOrders[1]);
+            sucessfullOrders[2] = botApiCalls.Step2Order2(order1);
+            sucessfullOrders[3] = botApiCalls.Step2Order3(order1);
+            sucessfullOrders[4] = botApiCalls.Step2Order4(order1);
+            stepUP = 2;
         }
 
-
-        void CheckTakeProfitUPAndSetVariables()
+        void Step3UPOrder2Filled()
         {
-            foreach (var item in postedTakeProfitOrdersIDUP.ToList())
-            {
-                if (IsOrderWithIDFilled(item))
-                {
-                    continueWithUP = false;
-                    Console.WriteLine("[BOT] CheckTakeProfitUPAndSetVariables + continueWithUP = false ");
-                    foreach (var it in postedStopMarketOrderIDUP.ToList())
-                    {
-                        GlobalObjects.bitmex.DeleteOrder(it);
-                        postedStopMarketOrderIDUP.Remove(it);
-
-                    }
-
-                }
-            }
+            // stop the up trading !
+            isUpTrading = false;
+            bitmex.DeleteOrder(sucessfullOrders[3]);
+            bitmex.DeleteOrder(sucessfullOrders[4]);
         }
-        void CheckTakeProfitDownAndSetVariables()
+        void Step3UPOrder3or4Filled()
         {
-            foreach (var item in postedTakeProfitOrdersIDDown.ToList())
-            {
-                if (IsOrderWithIDFilled(item))
-                {
-                    continueWithDown = false;
-                    Console.WriteLine("[BOT] CheckTakeProfitDownAndSetVariables + continueWithDown = false ");
-                    foreach (var it in postedStopMarketOrderIDDown.ToList())
-                    {
-                        GlobalObjects.bitmex.DeleteOrder(it);
-                        postedStopMarketOrderIDDown.Remove(it);
-
-                    }
-
-                }
-            }
+            Order order4 = orderDTO.GetByClorId(sucessfullOrders[4]);
+            bitmex.DeleteOrder(sucessfullOrders[2]);
+            sucessfullOrders[5] = botApiCalls.Step3Order5(order4);
+            sucessfullOrders[6] = botApiCalls.Step3Order6(order4);
+            stepUP = 3;
         }
-
-        public void Excecute()
+        void Step4UPOrder5Filled()
         {
-            async void logic()
-            {
-
-                while (GlobalObjects.isRunning)
-                {
-
-                    Thread.Sleep(500);
-
-
-                    // bitmex.getOpenPositions must be from sockets
-                    // but we are not making so many requests
-
-                    botDataTime = DateTime.Now;
-                    bool areWeAM = (string.Compare(botDataTime.ToString("tt"), "AM") == 0);
-                    if (areWeAM && tradeTime == 2)
-                    {
-
-                        // if we are morning and were trading at last afternoon
-                        if (continueWithDown == false && continueWithUP == false && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.activeInstrument.Symbol).Count == 0)
-                        {
-
-                            // if we take profit from up and down we null the bot and start trading again
-                            NULLBOT();
-
-                            Thread.Sleep(50);
-                        }
-
-                        bool deleteDown = false;
-                        bool deleteUp = false;
-                        foreach (var item in postedStopMarketOrderIDDown)
-                        {
-                            if (String.Compare(GlobalObjects.lastOrders[item].OrdStatus, "filled") == 0 && continueWithDown && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.activeInstrument.Symbol).Count != 0)
-                            {
-                                deleteDown = true;
-                            }
-
-                        }
-
-                        foreach (var item in postedStopMarketOrderIDUP)
-                        {
-                            if (String.Compare(GlobalObjects.lastOrders[item].OrdStatus, "filled") == 0 && continueWithUP && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.activeInstrument.Symbol).Count != 0)
-                            {
-                                deleteUp = true;
-                            }
-
-                        }
-
-                        if (deleteUp && continueWithUP)
-                        {
-                            foreach (var item in postedStopMarketOrderIDUP.ToList())
-                            {
-                                GlobalObjects.bitmex.DeleteOrder(item);
-                                postedStopMarketOrderIDUP.Remove(item);
-                            }
-
-                            foreach (var item in postedTakeProfitOrdersIDUP.ToList())
-                            {
-                                GlobalObjects.bitmex.DeleteOrder(item);
-                                postedTakeProfitOrdersIDUP.Remove(item);
-                            }
-
-                        }
-                        if (deleteDown && continueWithDown)
-                        {
-                            foreach (var item in postedStopMarketOrderIDDown.ToList())
-                            {
-                                GlobalObjects.bitmex.DeleteOrder(item);
-                                postedStopMarketOrderIDDown.Remove(item);
-                            }
-                            foreach (var item in postedTakeProfitOrdersIDDown.ToList())
-                            {
-                                GlobalObjects.bitmex.DeleteOrder(item);
-                                postedTakeProfitOrdersIDDown.Remove(item);
-                            }
-
-
-                        }
-
-
-                    }
-                    if (areWeAM == false && tradeTime == 1)
-                    {
-                        //if we are not morning and we were trading at morning
-                        if (continueWithDown == false && continueWithUP == false && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.activeInstrument.Symbol).Count == 0)
-                        {
-                            // if we have taken profit from up and down we null the bot
-                            NULLBOT();
-                            Thread.Sleep(50);
-
-                        }
-                        bool deleteDown2 = false;
-                        bool deleteUp2 = false;
-                        foreach (var item in postedStopMarketOrderIDDown)
-                        {
-                            if (String.Compare(GlobalObjects.lastOrders[item].OrdStatus, "filled") == 0 && continueWithDown && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.activeInstrument.Symbol).Count != 0)
-                            {
-                                deleteUp2 = true;
-
-                            }
-                        }
-                        foreach (var item in postedStopMarketOrderIDUP)
-                        {
-                            if (String.Compare(GlobalObjects.lastOrders[item].OrdStatus, "filled") == 0 && continueWithUP && GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.activeInstrument.Symbol).Count != 0)
-                            {
-                                deleteDown2 = true;
-
-                            }
-                        }
-                        if (deleteUp2 && continueWithUP)
-                        {
-                            foreach (var item in postedStopMarketOrderIDUP.ToList())
-                            {
-                                GlobalObjects.bitmex.DeleteOrder(item);
-                                postedStopMarketOrderIDUP.Remove(item);
-                            }
-                            foreach (var item in postedTakeProfitOrdersIDUP.ToList())
-                            {
-                                GlobalObjects.bitmex.DeleteOrder(item);
-                                postedTakeProfitOrdersIDUP.Remove(item);
-                            }
-
-
-                        }
-                        if (deleteDown2 && continueWithDown)
-                        {
-                            foreach (var item in postedStopMarketOrderIDDown.ToList())
-                            {
-                                GlobalObjects.bitmex.DeleteOrder(item);
-                                postedStopMarketOrderIDDown.Remove(item);
-                            }
-                            foreach (var item in postedTakeProfitOrdersIDDown.ToList())
-                            {
-                                GlobalObjects.bitmex.DeleteOrder(item);
-                                postedTakeProfitOrdersIDDown.Remove(item);
-                            }
-
-
-                        }
-                    }
-                    // if we do not have open position from the last candle we null the bot
-                    if (areWeAM && tradeTime == 2)
-                    {
-                        if (GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.activeInstrument.Symbol).Count == 0)
-                        {
-                            GlobalObjects.bitmex.CancelAllOpenOrders(GlobalObjects.activeInstrument.Symbol);
-                            NULLBOT();
-
-                            Thread.Sleep(50);
-                        }
-                    }
-                    if (areWeAM == false && tradeTime == 1)
-                    {
-                        if (GlobalObjects.bitmex.GetOpenPositions(GlobalObjects.activeInstrument.Symbol).Count == 0)
-                        {
-                            GlobalObjects.bitmex.CancelAllOpenOrders(GlobalObjects.activeInstrument.Symbol);
-                            NULLBOT();
-
-                            Thread.Sleep(50);
-                        }
-                    }
-
-
-
-                    if (continueWithUP)
-                    {
-                        switch (executedStepUP)
-                        {
-                            case 0: BOTCandleExecuteStep1UpAndDown(); break;
-
-                            case 1:
-
-                                CheckTakeProfitUPAndSetVariables(); ; CheckTakeProfitDownAndSetVariables();
-
-                                BOTExecuteStep2UPIfContiNueAndFilledStopMarketStep1BUY();
-
-
-                                break;
-                            case 2:
-
-                                CheckTakeProfitUPAndSetVariables(); CheckTakeProfitDownAndSetVariables();
-
-                                BOTExecuteStep3UPIfContinueAndFilledStopMarketStep2Sell();
-                                break;
-                            case 3:
-                                CheckTakeProfitUPAndSetVariables(); CheckTakeProfitDownAndSetVariables();
-                                BOTExecuteStep4UPIfContinueAndFilledStopMarketStep3Buy(); break;
-                            case 4:
-                                if (string.Compare(GlobalObjects.lastOrders[step4IdSMS].OrdStatus, "Filled") == 0)
-                                {
-                                    GlobalObjects.bitmex.DeleteOrder(step4IdTPS);
-                                    continueWithUP = false;
-
-                                }
-
-                                break;
-
-
-                            default:
-                                if (upOnce)
-                                {
-                                    // we succesfuly finished up trade logic
-                                    upOnce = false;
-                                }
-
-                                break;
-                        }
-                    }
-                    if (continueWithDown)
-                    {
-                        switch (executedStepDown)
-                        {
-                            case 0: BOTCandleExecuteStep1UpAndDown(); break;
-
-                            case 1:
-                                CheckTakeProfitUPAndSetVariables(); CheckTakeProfitDownAndSetVariables();
-
-                                BOTExecuteStep2DownIfContinueAndFilledStopMarketStep1SELL();
-                                break;
-                            case 2:
-
-                                CheckTakeProfitUPAndSetVariables(); CheckTakeProfitDownAndSetVariables();
-                                BOTExecuteStep3DownIfContinueAndFilledStopMarketStep2Buy();
-
-                                break;
-                            case 3:
-                                CheckTakeProfitUPAndSetVariables(); CheckTakeProfitDownAndSetVariables();
-                                BOTExecuteStep4DownIfContinueAndFilledStopMarketStep3Sell();
-
-                                break;
-                            case 4:
-                                if (string.Compare(GlobalObjects.lastOrders[step4IdSMB].OrdStatus, "Filled") == 0)
-                                {
-                                    GlobalObjects.bitmex.DeleteOrder(step4IdTPB);
-                                    continueWithDown = false;
-                                }
-
-                                break;
-                            default:
-
-                                if (downOnce)
-                                {
-                                    // we successfully finished down trade logic
-                                    downOnce = false;
-                                }
-
-                                break;
-                        }
-                    }
-                }
-
-
-            }
-            Task.Run(logic);
+            // stop the up trading !
+            isUpTrading = false;
+            bitmex.DeleteOrder(sucessfullOrders[6]);
         }
-
-
-        public void NULLBOT()
+        void Step4UPOrder6Filled()
         {
-
-            /*
-             
-             
-                if (wasItRunning)
-                {
-                    continueWithUP = true;
-                    executedStepUP = 0;
-                    continueWithDown = true;
-                    executedStepDown = 0;
-                    postedTakeProfitOrdersIDUP.Clear();
-                    postedTakeProfitOrdersIDDown.Clear();
-                    wasItRunning = false;
-                }
-             
-             
-             */
-            GlobalObjects.candles.Clear();
-            GlobalObjects.listof12Candles.Clear();
-
-
-            GlobalObjects.one12HoursCandle.Clear();
-
-            GlobalObjects.lastOrders.Clear();
-            GlobalObjects.openPositions.Clear();
-
-            // up
-            continueWithUP = true;
-            executedStepUP = 0;
-            postedTakeProfitOrdersIDUP.Clear();
-            postedStopMarketOrderIDUP.Clear();
-            // down
-            continueWithDown = true;
-            executedStepDown = 0;
-            postedTakeProfitOrdersIDDown.Clear();
-            postedStopMarketOrderIDDown.Clear();
-            GlobalObjects.isRunning = false;
-            Step1IdSMB = "";
-            Step1IdTPS = "";
-            Step1IdSMS = "";
-            Step1IdTPB = "";
-            // step 2
-            step2IdSMS = "";
-            step2IdSMB = "";
-            // step 3
-            // up
-            step3IdTPB = "";
-            step3IdSMB = "";
-            step3IdTPS = "";
-            step3IdSMS = "";
-            // step4 
-            step4IdSMS = "";
-            step4IdTPS = "";
-            step4IdSMB = "";
-            step4IdTPB = "";
-
+            // stop the up trading !
+            isUpTrading = false;
+            bitmex.DeleteOrder(sucessfullOrders[5]);
 
         }
+        void Step2DOWN()
+        {
+            Order order7 = orderDTO.GetByClorId(sucessfullOrders[7]);
+            sucessfullOrders[8] = botApiCalls.Step2Order8(order7);
+            sucessfullOrders[9] = botApiCalls.Step2Order9(order7);
+            sucessfullOrders[10] = botApiCalls.Step2Order10(order7);
+            stepDOWN = 2;
+        }
+        void Step3DOWNOrder8Filled()
+        {
+            // stop the down trading !
+            isDownTrading = false;
+            bitmex.DeleteOrder(sucessfullOrders[9]);
+            bitmex.DeleteOrder(sucessfullOrders[10]);
+        }
+        void Step3DOWNOrder9or10Filled()
+        {
+            Order order9 = orderDTO.GetByClorId(sucessfullOrders[9]);
+            bitmex.DeleteOrder(sucessfullOrders[8]);
+            sucessfullOrders[11] = botApiCalls.Step3Order5(order9);
+            sucessfullOrders[12] = botApiCalls.Step3Order6(order9);
+            stepDOWN = 3;
+        }
+        void Step4DOWNOrder11Filled()
+        {
+            // stop the down trading !
+            isDownTrading = false;
+            bitmex.DeleteOrder(sucessfullOrders[12]);
+        }
+        void Step4DOWNOrder12Filled()
+        {
+            // stop the down trading !
+            isDownTrading = false;
+            bitmex.DeleteOrder(sucessfullOrders[11]);
 
-
-        bool upOnce = true;
-        bool downOnce = true;
-
-        int tradeTime = 0;
-        DateTime botDataTime = new DateTime();
-        // if tradeTime = 1 we are trading at AM
-        // if tradeTime = 2 we are trading at PM
-        // if contonueWithUP == false && continueWithDown == false meands we open new candle
-
+        }
     }
+
 }
+

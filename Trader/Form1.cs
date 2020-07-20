@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -11,13 +12,19 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Trader;
 
+using Trader.WebSockets;
 
 namespace Trader
 {
     public partial class Form1 : Form
     {
         readonly Bot bot;
-        public static List<Candle> one12HoursCandle = new List<Candle>();
+        OrdersOnlineDTO orderDTO;
+        ActiveInstrument activeInstrument;
+        BitmexApiConnector bitmex;
+        List<Instrument> listInstruments;
+
+
 
         public Form1()
         {
@@ -25,34 +32,54 @@ namespace Trader
             InitializeDropdownsAndSettings();
             InitializeAPI();
             InitializeSymbolInfromation();
-            GlobalObjects.candleRetriever = new CandleRetriever();
-            System.Threading.Thread thread1 = new Thread(BSocket.HearthBeat);
+            OrdersOnlineSubject orderSubject = new OrdersOnlineSubject();
+            orderDTO = new OrdersOnlineDTO(orderSubject);
+            OrderParser orderParser = new OrderParser(orderDTO);
+            BSocket socket = new BSocket(orderParser);
+            System.Threading.Thread thread1 = new Thread(socket.HearthBeat);
+            OrdersOnlineSubscriber sb = new OrdersOnlineSubscriber(SocketGetOrders);
+            SocketGetOrders.DataSource = orderDTO.orderList;
+            bot = new Bot(orderDTO);
+            orderSubject.Subscribe(sb);
+            orderSubject.Subscribe(bot);
+
+
             thread1.Start();
             //Action hearthbeat = () => BSocket.Hearthbeat();
             // Task task = Task.Run(hearthbeat);
-            bot = new Bot();
+            
         }
 
         private void InitializeDropdownsAndSettings()
         {
 
-            nudStep1StopMarketBUYPRICE.Value = Properties.Settings.Default.Step1StopMarketBUYPRICE;
-            nudStep1StopMarketSELLPRICE.Value = Properties.Settings.Default.Step1StopMarketSELLPRICE;
-            nudStep1TakeProfitBUYPercent.Value = Properties.Settings.Default.Step1TakeProfitBUYPercent;
-            nudStep2StopMarketSELLPercent.Value = Properties.Settings.Default.Step2StopMarketSELLPercent;
-            nudStep2StopMarketBuyPercent.Value = Properties.Settings.Default.Step2StopMarketBuyPercent;
-            nudStep3TakeProfitBUYPercent.Value = Properties.Settings.Default.Step3TakeProfitBUYPercent;
-            nudStep3StopMarketBUYPercent.Value = Properties.Settings.Default.Step3StopMarketBUYPercent;
-            nudStep3TakeProfitSELLPercent.Value = Properties.Settings.Default.Step3TakeProfitSELLPercent;
-            nudStep3StopMarketSELLPercent.Value = Properties.Settings.Default.Step3StopMarketSELLPercent;
+            nudOrder1Price.Value = Properties.Settings.Default.order1Price;
+            nudOrder7Price.Value = Properties.Settings.Default.order7Price;
+            nudOrder2Percent.Value = Properties.Settings.Default.order2Percent;
+            nudOrder3Percent.Value = Properties.Settings.Default.order3Percent;
+            nudOrder4Percent.Value = Properties.Settings.Default.order4Percent;
+            nudOrder5Percent.Value = Properties.Settings.Default.order5Percent;
+            nudOrder6Percent.Value = Properties.Settings.Default.order6Percent;
+            nudOrder8Percent.Value = Properties.Settings.Default.order8Percent;
+            nudOrder9Percent.Value = Properties.Settings.Default.order9Percent;
+            nudOrder10Percent.Value = Properties.Settings.Default.order10Percent;
+            nudOrder11Percent.Value = Properties.Settings.Default.order11Percent;
+            nudOrder12Percent.Value = Properties.Settings.Default.order12Percent;
+            nudOrder2Qty.Value = Properties.Settings.Default.order2Quantity;
+            nudOrder3Qty.Value = Properties.Settings.Default.order3Quantity;
+            nudOrder4Qty.Value = Properties.Settings.Default.order4Quantity;
+            nudOrder5Qty.Value = Properties.Settings.Default.order5Quantity;
+            nudOrder6Qty.Value = Properties.Settings.Default.order6Quantity;
+      
+            nudOrder8Qty.Value = Properties.Settings.Default.order8Quantity;
+            nudOrder9Qty.Value = Properties.Settings.Default.order9Quantity;
+            nudOrder10Qty.Value = Properties.Settings.Default.order10Quantity;
+            nudOrder11Qty.Value = Properties.Settings.Default.order11Quantity;
+            nudOrder12Qty.Value = Properties.Settings.Default.order12Quantity;
+            
 
-            nudStep4TakeProfitSELLPercent.Value = Properties.Settings.Default.Step4TakeProfitSELLPercent;
-            nudStep4StopMarketSELLPercent.Value = Properties.Settings.Default.Step4StopMarketSELLPercent;
-            nudStep4TakeProfitBUYPercent.Value = Properties.Settings.Default.Step4TakeProfitBUYPercent;
-            nudStep4StopMarketBUYPercent.Value = Properties.Settings.Default.Step4StopMarketBUYPercent;
 
             nudSum.Value = Properties.Settings.Default.BOTstartQty;
-
             txtKey.Text = Properties.Settings.Default.key;
             txtSecret.Text = Properties.Settings.Default.secret;
             txtDomain.Text = Properties.Settings.Default.domain;
@@ -61,22 +88,33 @@ namespace Trader
 
         private void SaveDropDownAndSettings()
         {
-            Properties.Settings.Default.Step1StopMarketBUYPRICE = nudStep1StopMarketBUYPRICE.Value;
-            Properties.Settings.Default.Step1StopMarketSELLPRICE = nudStep1StopMarketSELLPRICE.Value;
-            Properties.Settings.Default.Step1TakeProfitBUYPercent = nudStep1TakeProfitBUYPercent.Value;
-            Properties.Settings.Default.Step2StopMarketSELLPercent = nudStep2StopMarketSELLPercent.Value;
-            Properties.Settings.Default.Step2StopMarketBuyPercent = nudStep2StopMarketBuyPercent.Value;
-            Properties.Settings.Default.Step3TakeProfitBUYPercent = nudStep3TakeProfitBUYPercent.Value;
-            Properties.Settings.Default.Step3StopMarketBUYPercent = nudStep3StopMarketBUYPercent.Value;
-            Properties.Settings.Default.Step3TakeProfitSELLPercent = nudStep3TakeProfitSELLPercent.Value;
-            Properties.Settings.Default.Step3StopMarketSELLPercent = nudStep3StopMarketSELLPercent.Value;
 
-            Properties.Settings.Default.Step4TakeProfitSELLPercent = nudStep4TakeProfitSELLPercent.Value;
-            Properties.Settings.Default.Step4StopMarketSELLPercent = nudStep4StopMarketSELLPercent.Value;
-            Properties.Settings.Default.Step4TakeProfitBUYPercent = nudStep4TakeProfitBUYPercent.Value;
-            Properties.Settings.Default.Step4StopMarketBUYPercent = nudStep4StopMarketBUYPercent.Value;
+            Properties.Settings.Default.order1Price = nudOrder1Price.Value;
+            Properties.Settings.Default.order7Price = nudOrder7Price.Value;
+            Properties.Settings.Default.order2Percent = nudOrder2Percent.Value;
+            Properties.Settings.Default.order3Percent = nudOrder3Percent.Value;
+            Properties.Settings.Default.order4Percent = nudOrder4Percent.Value;
+            Properties.Settings.Default.order5Percent = nudOrder5Percent.Value;
+            Properties.Settings.Default.order6Percent = nudOrder6Percent.Value;
+            Properties.Settings.Default.order8Percent = nudOrder8Percent.Value;
+            Properties.Settings.Default.order9Percent = nudOrder9Percent.Value;
+            Properties.Settings.Default.order10Percent = nudOrder10Percent.Value;
+            Properties.Settings.Default.order11Percent = nudOrder11Percent.Value;
+            Properties.Settings.Default.order12Percent = nudOrder12Percent.Value;
+            Properties.Settings.Default.order2Quantity = Convert.ToInt32(nudOrder2Qty.Value);
+            Properties.Settings.Default.order3Quantity = Convert.ToInt32(nudOrder3Qty.Value);
+            Properties.Settings.Default.order4Quantity = Convert.ToInt32(nudOrder4Qty.Value);
+            Properties.Settings.Default.order5Quantity = Convert.ToInt32(nudOrder5Qty.Value);
+            Properties.Settings.Default.order6Quantity = Convert.ToInt32(nudOrder6Qty.Value);
+
+            Properties.Settings.Default.order8Quantity = Convert.ToInt32(nudOrder8Qty.Value);
+            Properties.Settings.Default.order9Quantity = Convert.ToInt32(nudOrder9Qty.Value);
+            Properties.Settings.Default.order10Quantity = Convert.ToInt32(nudOrder10Qty.Value) ;
+            Properties.Settings.Default.order11Quantity = Convert.ToInt32(nudOrder11Qty.Value);
+            Properties.Settings.Default.order12Quantity = Convert.ToInt32(nudOrder12Qty.Value);
+
+
             Properties.Settings.Default.BOTstartQty = Convert.ToInt32(nudSum.Value);
-
             Properties.Settings.Default.key = txtKey.Text;
             Properties.Settings.Default.secret = txtSecret.Text;
             Properties.Settings.Default.domain = txtDomain.Text;
@@ -91,7 +129,12 @@ namespace Trader
 
         private void InitializeAPI()
         {
-            GlobalObjects.bitmex = new BitmexApiConnector(Properties.Settings.Default.key, Properties.Settings.Default.secret, Properties.Settings.Default.domain);
+            bitmex = BitmexApiConnector.Instance;
+            bitmex.ApiKey = Properties.Settings.Default.key;
+            bitmex.ApiSecret = Properties.Settings.Default.secret;
+            bitmex.Domain = Properties.Settings.Default.domain;
+            activeInstrument = ActiveInstrument.Instance;
+
 
             // We must do this in case symbols are different on test and real net
             // GetAPIValidity(); // Validate API keys by checking and displaying account balance.
@@ -99,46 +142,16 @@ namespace Trader
             InitializeSymbolInfromation();
         }
 
-        private void BtnStartBot_Click(object sender, EventArgs e)
-        {
-            if (!GlobalObjects.isRunning)
-            {
-
-                btnStartBot.BackColor = Color.Red;
-                GlobalObjects.isRunning = true;
-                btnStartBot.Text = "Bot is running";
-                btnStopBot.BackColor = Color.Green;
-                GlobalObjects.isRunning = true;
-                bot.Excecute();
-            }
-        }
-
-        private void BtnStopBot_Click(object sender, EventArgs e)
-        {
-            if (GlobalObjects.isRunning)
-            {
-                GlobalObjects.isRunning = false; // to start and stop the bot
-                bot.NULLBOT();
-                bot.continueWithUP = true;
-                bot.executedStepUP = 0;
-                bot.continueWithDown = true;
-                bot.executedStepDown = 0;
-                bot.postedTakeProfitOrdersIDUP.Clear();
-                bot.postedTakeProfitOrdersIDDown.Clear();
-                GlobalObjects.isRunning = false;
-                btnStopBot.BackColor = Color.Red;
-                btnStartBot.Text = "Start Bot";
-                btnStartBot.BackColor = Color.Green;
-            }
-        }
-
+        
         private void InitializeSymbolInfromation()
         {
-            GlobalObjects.activeInstruments = GlobalObjects.bitmex.GetActiveInstruments().OrderByDescending(a => a.Volume24H).ToList();
-            ddlSymbol.DataSource = GlobalObjects.activeInstrument;
+            activeInstrument.RequestActiveInstruments();
+            listInstruments =  activeInstrument.GetInstruments().ToList();
+            ddlSymbol.DataSource = listInstruments;
             ddlSymbol.DisplayMember = "Symbol";
             ddlSymbol.SelectedIndex = 0;
-            GlobalObjects.activeInstrument = GlobalObjects.activeInstruments[0];
+            activeInstrument.ChangeActiveInstrument(((Instrument)ddlSymbol.SelectedItem).Symbol);
+        
         }
 
         private void BtnSave_Click(object sender, EventArgs e)
@@ -148,31 +161,31 @@ namespace Trader
 
         private void DdlSymbol_SelectedIndexChanged(object sender, EventArgs e)
         {
-            GlobalObjects.activeInstrument = GlobalObjects.bitmex.GetInstrument(((Instrument)ddlSymbol.SelectedItem).Symbol)[0];
+
+            activeInstrument.ChangeActiveInstrument(((Instrument)ddlSymbol.SelectedItem).Symbol);
         }
 
         private void Refresh_Click(object sender, EventArgs e)
         {
-            List<Order> orders = GlobalObjects.lastOrders.Values.ToList();
-            SocketGetOrders.DataSource = orders;
-            Console.WriteLine(orders.Count);
-            Console.WriteLine(GlobalObjects.lastOrders.Count);
-            foreach (var item in orders)
-            {
-                Console.WriteLine(item.ClOrdID + " " + item.StopPx);
-            }
+            SocketGetOrders.DataSource = orderDTO.orderList;
+
         }
 
         private void Refrest12CandlesGrid_Click(object sender, EventArgs e)
         {
-            dataGridCandles.DataSource = GlobalObjects.listof12Candles.ToList<Candle>();
-            dataGrind12Hour.DataSource = GlobalObjects.one12HoursCandle.ToList<Candle>();
+            dataGridCandles.DataSource = CandleRetriever.listof12Candles.ToList<Candle>();
+            dataGrind12Hour.DataSource = CandleRetriever.one12HoursCandle.ToList<Candle>();
         }
 
         private void BtnDeleteByClorID_Click(object sender, EventArgs e)
         {
             string clorid = txtDeleteByClorid.Text;
-            GlobalObjects.bitmex.DeleteOrder(clorid);
+            bitmex.DeleteOrder(clorid);
+        }
+
+        private void btnStartBot_Click(object sender, EventArgs e)
+        {
+            bot.Start();
         }
     }
 
